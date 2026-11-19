@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coreteron Instagram Automation Suite</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar Header -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>Coreteron</h1>
+                    <span class="badge">Instagram Suite v2.0</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="tab-register">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7.5" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                    <span>1-Click Registration</span>
+                </button>
+                <button class="nav-item" data-tab="tab-batch">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line></svg>
+                    <span>Batch Excel Mode</span>
+                </button>
+                <button class="nav-item" data-tab="tab-login">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                    <span>Account Login</span>
+                </button>
+                <button class="nav-item" data-tab="tab-mailbox">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <span>Test Mailbox</span>
+                </button>
+                <button class="nav-item" data-tab="tab-guide">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span>User Guide</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-status">
+                <div class="status-indicator">
+                    <span class="status-dot ready" id="global-status-dot"></span>
+                    <span class="status-label" id="global-status-text">System Ready</span>
+                </div>
+                <div class="imap-pill">
+                    <span class="dot-sm"></span> witcher.mxrouting.net:993
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- TAB 1: SINGLE REGISTRATION -->
+            <section id="tab-register" class="tab-pane active">
+                <div class="section-header">
+                    <div>
+                        <h2>Automated Account Registration</h2>
+                        <p class="subtitle">Turnkey Instagram registration with automated sub-second MXroute IMAP OTP verification.</p>
+                    </div>
+                    <button class="btn btn-secondary" id="btn-quick-randomize">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
+                        <span>Randomize Profile</span>
+                    </button>
+                </div>
+
+                <div class="grid-container">
+                    <!-- Left: Form -->
+                    <div class="card form-card">
+                        <form id="form-register">
+                            <div class="form-group">
+                                <label for="reg-email">Email Address <span class="required">*</span></label>
+                                <input type="email" id="reg-email" placeholder="e.g. user@meenasbeautysalon.com" value="{{ default_email }}" required>
+                                <span class="field-hint">Must match your MXroute mailbox domain.</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reg-email-password">Email Password (IMAP) <span class="required">*</span></label>
+                                <input type="password" id="reg-email-password" placeholder="Password to read incoming emails" value="{{ default_email_password }}" required>
+                                <span class="field-hint">Used by bot to retrieve 6-digit confirmation code.</span>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="reg-username">Instagram Username <span class="required">*</span></label>
+                                    <input type="text" id="reg-username" placeholder="e.g. meena_akaash_qa5" value="{{ default_username }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-fullname">Full Name</label>
+                                    <input type="text" id="reg-fullname" placeholder="e.g. Akaash T" value="Coreteron User">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="reg-password">Instagram Password <span class="required">*</span></label>
+                                    <input type="text" id="reg-password" placeholder="Account password" value="{{ default_email_password }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-birthday">Date of Birth</label>
+                                    <input type="date" id="reg-birthday" value="1996-05-18">
+                                </div>
+                            </div>
+
+                            <!-- Advanced IMAP Settings (Collapsible) -->
+                            <details class="advanced-details">
+                                <summary>Advanced IMAP Server Settings</summary>
+                                <div class="form-row" style="margin-top: 0.75rem;">
+                                    <div class="form-group">
+                                        <label for="reg-imap-server">IMAP Host</label>
+                                        <input type="text" id="reg-imap-server" value="{{ default_imap_server }}">
+                                    </div>
+                                    <div class="form-group" style="max-width: 110px;">
+                                        <label for="reg-imap-port">Port</label>
+                                        <input type="number" id="reg-imap-port" value="{{ default_imap_port }}">
+                                    </div>
+                                </div>
+                            </details>
+
+                            <!-- Proxy Configuration -->
+                            <div class="form-group" style="margin-top: 0.75rem;">
+                                <label for="reg-proxy">Proxy Endpoint (Optional)</label>
+                                <input type="text" id="reg-proxy" placeholder="http://user:pass@host:port or host:port:user:pass" value="{{ default_proxy }}">
+                                <span class="field-hint">Supports Rotating Residential, ISP, and SOCKS5 proxies to avoid IP rate-limiting.</span>
+                            </div>
+
+                            <!-- Switches -->
+                            <div class="options-box">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="reg-visible-browser" checked>
+                                    <div class="checkbox-text">
+                                        <strong>Visible Browser Window (Recommended)</strong>
+                                        <p>Keep browser visible to watch progress and solve any visual CAPTCHA if prompted.</p>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-start-register">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                <span>Start Automated Registration</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Right: Execution Progress & Live Feed -->
+                    <div class="card live-card">
+                        <!-- Human Action Banner -->
+                        <div class="human-banner" id="human-alert-box" style="display: none;">
+                            <div class="banner-icon">[Alert]</div>
+                            <div class="banner-content">
+                                <h4>Human Verification In Browser</h4>
+                                <p id="human-alert-message">Instagram is displaying a visual check or phone prompt in the open browser window. Please complete it directly in the browser.</p>
+                                <button class="btn btn-warning" id="btn-human-done">
+                                    <span>I Solved It - Resume Automation</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Progress Stepper -->
+                        <div class="stepper">
+                            <div class="step-node" id="step-init">
+                                <div class="step-circle">1</div>
+                                <span class="step-name">Launch</span>
+                            </div>
+                            <div class="step-connector"></div>
+                            <div class="step-node" id="step-fill">
+                                <div class="step-circle">2</div>
+                                <span class="step-name">Fill Form</span>
+                            </div>
+                            <div class="step-connector"></div>
+                            <div class="step-node" id="step-otp">
+                                <div class="step-circle">3</div>
+                                <span class="step-name">IMAP OTP</span>
+                            </div>
+                            <div class="step-connector"></div>
+                            <div class="step-node" id="step-verify">
+                                <div class="step-circle">4</div>
+                                <span class="step-name">Verify</span>
+                            </div>
+                            <div class="step-connector"></div>
+                            <div class="step-node" id="step-done">
+                                <div class="step-circle">5</div>
+                                <span class="step-name">Done</span>
+                            </div>
+                        </div>
+
+                        <!-- Result Box -->
+                        <div class="result-box" id="result-box" style="display: none;">
+                            <div class="result-header" id="result-header">
+                                <span class="badge badge-success" id="result-badge">Success</span>
+                                <h3 id="result-title">Account Created!</h3>
+                            </div>
+                            <p class="result-details" id="result-details"></p>
+                            <div class="otp-pill" id="result-otp-pill" style="display: none;">
+                                <span>Verified OTP Code:</span> <strong id="result-otp-val">000000</strong>
+                            </div>
+                        </div>
+
+                        <!-- Live Console Logs -->
+                        <div class="console-wrapper">
+                            <div class="console-header">
+                                <span>Live Activity Feed</span>
+                                <button class="btn-clear-logs" id="btn-clear-logs">Clear</button>
+                            </div>
+                            <div class="console-body" id="console-logs">
+                                <div class="log-entry info">
+                                    <span class="log-time">--:--:--</span>
+                                    <span class="log-tag">READY</span>
+                                    <span class="log-msg">Ready to start. Enter your account information and click Start.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: BATCH EXCEL MODE -->
+            <section id="tab-batch" class="tab-pane">
+                <div class="section-header">
+                    <div>
+                        <h2>Batch Excel Account Creation</h2>
+                        <p class="subtitle">Upload a spreadsheet containing multiple accounts with their emails and passwords to create them automatically.</p>
+                    </div>
+                    <a href="/api/template" class="btn btn-secondary" download>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <span>Download Excel Template</span>
+                    </a>
+                </div>
+
+                <div class="grid-container">
+                    <div class="card form-card">
+                        <form id="form-batch-upload">
+                            <div class="form-group">
+                                <label for="batch-file">Select Excel File (.xlsx) <span class="required">*</span></label>
+                                <input type="file" id="batch-file" accept=".xlsx, .xls" required style="padding: 0.5rem; background: var(--bg-card);">
+                                <span class="field-hint">Must contain columns: email, password, username, email_password</span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-start-batch">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                <span>Start Batch Registration</span>
+                            </button>
+                        </form>
+
+                        <div id="batch-upload-status" class="alert-box" style="display: none; margin-top: 1.25rem;"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="info-card">
+                            <h3>Batch Operations Guide</h3>
+                            <ul class="bullet-list">
+                                <li><strong>1. Download Template:</strong> Click the button above to download <code>coreteron_accounts_template.xlsx</code>.</li>
+                                <li><strong>2. Enter Your Credentials:</strong> Add your rows of emails, email passwords, Instagram usernames, passwords, and optional proxy endpoints.</li>
+                                <li><strong>3. Upload & Run:</strong> Upload the spreadsheet and click Start. The automation will register each account sequentially, verifying every OTP via MXroute IMAP.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: LOGIN -->
+            <section id="tab-login" class="tab-pane">
+                <div class="section-header">
+                    <div>
+                        <h2>Instagram Account Login & Verification</h2>
+                        <p class="subtitle">Log in to existing accounts, handle device security codes via MXroute IMAP, and scroll the feed.</p>
+                    </div>
+                </div>
+
+                <div class="grid-container">
+                    <div class="card form-card">
+                        <form id="form-login">
+                            <div class="form-group">
+                                <label for="login-username">Instagram Username / Email <span class="required">*</span></label>
+                                <input type="text" id="login-username" placeholder="Username or email" value="{{ default_username }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="login-password">Instagram Password <span class="required">*</span></label>
+                                <input type="password" id="login-password" placeholder="Instagram password" value="{{ default_email_password }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="login-email-pwd">Mailbox Password (for Device Verification)</label>
+                                <input type="password" id="login-email-pwd" placeholder="Required if Instagram asks to verify new device" value="{{ default_email_password }}">
+                                <span class="field-hint">If device OTP is triggered, the bot will auto-fetch code from IMAP.</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="login-proxy">Proxy Endpoint (Optional)</label>
+                                <input type="text" id="login-proxy" placeholder="http://user:pass@host:port or host:port:user:pass" value="{{ default_proxy }}">
+                                <span class="field-hint">Use residential or static ISP proxy to avoid suspicious location challenges.</span>
+                            </div>
+
+                            <div class="options-box">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="login-visible-browser" checked>
+                                    <div class="checkbox-text">
+                                        <strong>Visible Browser Window</strong>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-start-login">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                                <span>Login & Verify Session</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <div class="info-card">
+                            <h3>Login Automation Capabilities</h3>
+                            <ul class="bullet-list">
+                                <li><strong>Device Confirmation:</strong> Automatically reads and enters the 6-digit security code sent by Instagram when signing in from a new IP/browser.</li>
+                                <li><strong>Smart Dismiss:</strong> Automatically handles "Save login info" and "Turn on notifications" popups.</li>
+                                <li><strong>Feed Proof:</strong> Scrolls the authenticated home feed 3 times to confirm active session.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: TEST MAILBOX -->
+            <section id="tab-mailbox" class="tab-pane">
+                <div class="section-header">
+                    <div>
+                        <h2>Mailbox Connection Diagnostics</h2>
+                        <p class="subtitle">Quickly verify your MXroute email address, password, and port before running Instagram automation.</p>
+                    </div>
+                </div>
+
+                <div class="grid-container">
+                    <div class="card form-card">
+                        <form id="form-mailbox-test">
+                            <div class="form-group">
+                                <label for="test-email">Email Address <span class="required">*</span></label>
+                                <input type="email" id="test-email" placeholder="e.g. akaash_t2@meenasbeautysalon.com" value="{{ default_email }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="test-password">Mailbox Password <span class="required">*</span></label>
+                                <input type="password" id="test-password" placeholder="Your IMAP mailbox password" value="{{ default_email_password }}" required>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="test-server">IMAP Host</label>
+                                    <input type="text" id="test-server" value="{{ default_imap_server }}">
+                                </div>
+                                <div class="form-group" style="max-width: 110px;">
+                                    <label for="test-port">Port</label>
+                                    <input type="number" id="test-port" value="{{ default_imap_port }}">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-secondary btn-block" id="btn-run-mailbox-test">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                                <span>Test IMAP Connection</span>
+                            </button>
+                        </form>
+
+                        <div id="mailbox-test-result" class="alert-box" style="display: none; margin-top: 1.25rem;">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="info-card">
+                            <h3>MXroute Configuration Guide</h3>
+                            <ul class="bullet-list">
+                                <li><strong>Default Host:</strong> witcher.mxrouting.net</li>
+                                <li><strong>Port:</strong> 993 (SSL/TLS encrypted)</li>
+                                <li><strong>Username:</strong> Always use your full email address (e.g. <code>user@meenasbeautysalon.com</code>).</li>
+                                <li><strong>Sub-second Speed:</strong> MXroute delivers Instagram confirmation emails directly in under 1 second.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: USER GUIDE -->
+            <section id="tab-guide" class="tab-pane">
+                <div class="section-header">
+                    <div>
+                        <h2>User Operations Guide</h2>
+                        <p class="subtitle">Operational manual for executing the Coreteron Instagram Suite.</p>
+                    </div>
+                </div>
+
+                <div class="card guide-card">
+                    <h3>Quick Start Guide</h3>
+                    <div class="guide-steps">
+                        <div class="guide-step">
+                            <div class="step-badge">Step 1</div>
+                            <h4>Fill Your Credentials</h4>
+                            <p>Enter your MXroute email address, email password, desired Instagram username, and optional proxy endpoint. You can click <strong>"Randomize Profile"</strong> to instantly generate a strong password and realistic profile.</p>
+                        </div>
+                        <div class="guide-step">
+                            <div class="step-badge">Step 2</div>
+                            <h4>Click "Start Automated Registration"</h4>
+                            <p>A visible browser window will open. The bot will automatically type your information, select birthday, request the confirmation code, fetch the OTP from MXroute IMAP in sub-seconds, and submit it.</p>
+                        </div>
+                        <div class="guide-step">
+                            <div class="step-badge">Step 3</div>
+                            <h4>Account Verified & Ready</h4>
+                            <p>Once completed, the dashboard will confirm your verified session and feed scrolls. Your new account is ready to use.</p>
+                        </div>
+                    </div>
+
+                    <hr class="divider">
+
+                    <h3>Handling Captchas and Phone Verification</h3>
+                    <p>Instagram occasionally shows a visual image check or phone verification. The system includes <strong>Human-in-the-Loop protection</strong>:</p>
+                    <ul class="bullet-list">
+                        <li>The dashboard alerts you with a notification: <em>"Human Verification In Browser"</em>.</li>
+                        <li>Look at the open browser window, solve the visual check or enter your mobile number.</li>
+                        <li>Click <strong>"I Solved It - Resume Automation"</strong> on the dashboard, or wait a few seconds. The bot will automatically detect completion and resume.</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

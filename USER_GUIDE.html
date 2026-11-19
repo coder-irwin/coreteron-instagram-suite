@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coreteron Instagram Suite — Complete User Guide</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+            --text-dark: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-body);
+            line-height: 1.6;
+            padding: 2.5rem 1.5rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 3rem 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero p {
+            color: #94a3b8;
+            font-size: 1.05rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(37, 99, 235, 0.25);
+            border: 1px solid rgba(37, 99, 235, 0.5);
+            color: #60a5fa;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 4px 10px;
+            border-radius: 9999px;
+            margin-bottom: 1rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        h2 {
+            font-size: 1.35rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 680px) {
+            .platform-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .platform-card {
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            background: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .platform-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .platform-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .platform-icon {
+            font-size: 1.75rem;
+        }
+
+        .platform-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .file-pill {
+            display: inline-block;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+            font-family: ui-monospace, monospace;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1.25rem 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .step-content strong {
+            color: var(--text-dark);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .callout {
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem 0;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .callout-warning {
+            background-color: var(--warning-light);
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+
+        .callout-success {
+            background-color: var(--success-light);
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
+
+        .callout-icon {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        details {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        summary {
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            user-select: none;
+            background: #fafafa;
+        }
+
+        summary:hover {
+            background: #f1f5f9;
+        }
+
+        .faq-body {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-body);
+            font-size: 0.95rem;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Header -->
+        <header class="hero">
+            <div>
+                <span class="badge">Operational User Manual</span>
+                <h1>Coreteron Instagram Suite</h1>
+                <p>Turnkey Instagram account automation with sub-second MXroute OTP verification.</p>
+            </div>
+        </header>
+
+        <!-- Section 1: 1-Click Launching -->
+        <div class="card">
+            <h2> 1-Minute Launch (Zero Git Required)</h2>
+            <p>You do not need to install Git or know any terminal commands. Simply download and extract <code>coreteron_instagram_suite.zip</code>, then open the file for your computer:</p>
+
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <div class="platform-header">
+                        <span class="platform-icon"></span>
+                        <div>
+                            <div class="platform-title">Apple Mac (macOS)</div>
+                            <span class="file-pill">Start_Mac.command</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem;">Double-click <strong>Start_Mac.command</strong>. It verifies your environment and opens your browser to <code>http://127.0.0.1:5050</code>.</p>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.5rem;">
+                        <em>Tip for Mac: If prompted with "Unidentified Developer", simply Right-Click (or Control-Click) the file and choose <strong>Open</strong>.</em>
+                    </p>
+                </div>
+
+                <div class="platform-card">
+                    <div class="platform-header">
+                        <span class="platform-icon"></span>
+                        <div>
+                            <div class="platform-title">Windows PC</div>
+                            <span class="file-pill">Start_Windows.bat</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem;">Double-click <strong>Start_Windows.bat</strong>. It automatically handles the setup and opens your browser to <code>http://127.0.0.1:5050</code>.</p>
+                </div>
+            </div>
+
+            <div class="callout callout-success">
+                <span class="callout-icon"></span>
+                <div>
+                    <strong>Only One Prerequisite: Python 3</strong><br>
+                    If you don't already have Python installed on your computer, download it from <a href="https://www.python.org/downloads/" target="_blank">python.org/downloads</a>. (On Windows, ensure you check the box <em>"Add python.exe to PATH"</em>).
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Step-by-Step Registration -->
+        <div class="card">
+            <h2>⚡ Step-by-Step: Creating an Account</h2>
+            <p>Once the Web Dashboard opens in your browser at <code>http://127.0.0.1:5050</code>:</p>
+
+            <div class="step-list">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <strong>Go to "1-Click Registration" Tab</strong>
+                        Located at the top of the left navigation menu.
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <strong>Fill Email Address & Mailbox Password</strong>
+                        Enter your MXroute email (e.g. <code>user@meenasbeautysalon.com</code>) and the mailbox password used to access incoming emails.
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <strong>Fill or Randomize Profile Details</strong>
+                        Type your desired username and password, or click the <strong>" Randomize Profile"</strong> button to generate a clean, realistic profile in one click!
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <strong>Click "Start Automated Registration"</strong>
+                        A visible browser window will appear. Sit back and watch the bot automatically:
+                        <ul style="margin: 0.5rem 0 0.5rem 1.5rem; font-size: 0.88rem;">
+                            <li>Enter your credentials and select your birthday dropdowns</li>
+                            <li>Connect to your mailbox and retrieve the 6-digit confirmation code in <strong>under 1 second</strong></li>
+                            <li>Submit the code into Instagram</li>
+                            <li>Automatically retry if Instagram flags the code as expired</li>
+                            <li>Scroll the home feed 3 times to confirm the active session</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step-item">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <strong>Account Verified & Ready!</strong>
+                        The dashboard displays your confirmed account details and verified status.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Human Verification Safeguard -->
+        <div class="card">
+            <h2>️ What to Do If "Confirm You're Human" Appears</h2>
+            <p>Instagram security occasionally asks for a visual image check (CAPTCHA) or an SMS phone number. Our software includes <strong>Human-in-the-Loop protection</strong>:</p>
+
+            <div class="callout callout-warning">
+                <span class="callout-icon">⚠️</span>
+                <div>
+                    <strong>When A Checkpoint Appears:</strong><br>
+                    1. The dashboard will show an illuminated <strong>Amber Alert Box</strong>: <em>"Human Verification In Browser"</em>.<br>
+                    2. Look at the open browser window on your screen.<br>
+                    3. Solve the visual puzzle or enter your mobile number in the browser.<br>
+                    4. Click <strong>"✅ I Solved It — Resume Automation"</strong> on the dashboard (or wait 3 seconds; the bot auto-detects completion!).<br>
+                    5. The bot automatically resumes and finishes registration.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Testing Mailbox First -->
+        <div class="card">
+            <h2> Diagnostic: Test Your Mailbox Connection</h2>
+            <p>To avoid delays caused by mistyped email credentials, use the <strong>Test Mailbox</strong> tab to verify your connection beforehand:</p>
+            <ol style="margin-left: 1.5rem; font-size: 0.92rem; line-height: 1.8;">
+                <li>Click the <strong>Test Mailbox</strong> tab in the sidebar.</li>
+                <li>Enter your Email Address and Mailbox Password.</li>
+                <li>Click <strong>Test IMAP Connection</strong>.</li>
+                <li>You will see:
+                    <span style="color: var(--success); font-weight: 600;">"✅ Success! Connected to witcher.mxrouting.net:993 with X messages"</span>
+                    or a helpful explanation if the password was mistyped.
+                </li>
+            </ol>
+        </div>
+
+        <!-- Section 5: Quick Reference & FAQs -->
+        <div class="card">
+            <h2>❓ Frequently Asked Questions (FAQ)</h2>
+
+            <details>
+                <summary>How do I turn off the app when I'm done?</summary>
+                <div class="faq-body">
+                    Simply close your web browser tab, then close the Terminal or Command Prompt window (or press <code>Ctrl + C</code>).
+                </div>
+            </details>
+
+            <details>
+                <summary>Can I run multiple accounts?</summary>
+                <div class="faq-body">
+                    Yes! You can run accounts one by one on the 1-Click Registration tab, or use the pre-built <code>accounts_template.xlsx</code> Excel template.
+                </div>
+            </details>
+
+            <details>
+                <summary>What if Instagram says "This code doesn't work"?</summary>
+                <div class="faq-body">
+                    You do not need to do anything! The bot includes built-in self-healing: it automatically clicks "Get a new code", waits 3 seconds, reads the fresh code from your mailbox, and re-submits automatically.
+                </div>
+            </details>
+
+            <details>
+                <summary>What are the default MXroute server settings?</summary>
+                <div class="faq-body">
+                    <strong>IMAP Server:</strong> <code>witcher.mxrouting.net</code><br>
+                    <strong>Port:</strong> <code>993</code> (SSL encrypted)
+                </div>
+            </details>
+        </div>
+
+        <footer class="footer">
+            Coreteron Instagram Automation Suite v2.0 • Enterprise Operational Edition
+        </footer>
+    </div>
+</body>
+</html>
