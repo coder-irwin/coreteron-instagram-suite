@@ -4,6 +4,13 @@ Autonomous Instagram account registration, device verification, and session mana
 
 ---
 
+## Video Demonstration
+
+A complete product walkthrough demonstrating 1-click registration, MXroute IMAP OTP retrieval, login session verification, and batch mode is included in the repository:
+- Video File: [demo/CORETERON_INSTAGRAM_SUITE_DEMO.mp4](demo/CORETERON_INSTAGRAM_SUITE_DEMO.mp4) (720p HD, 70s, 2.1 MB)
+
+---
+
 ## 5-Minute Quick Setup
 
 ### Step 1: Clone Repository
@@ -104,6 +111,7 @@ coreteron_instagram_suite/
 |-- instagram_engine.py        # Playwright browser automation core
 |-- mxroute_client.py          # Fast IMAP client for sub-second OTP extraction
 |-- accounts_template.xlsx     # Spreadsheet template for batch creation
+|-- demo/                      # Product video demonstration (MP4)
 |-- templates/index.html       # Web dashboard user interface
 |-- static/                    # Dashboard stylesheets and client script
 |-- Start_Mac.command          # 1-Click macOS launcher script
