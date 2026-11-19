@@ -139,8 +139,8 @@ Test your mailbox connection prior to running campaigns:
 
 ## 8. Frequently Asked Questions & Troubleshooting
 
-### Q1: The launcher reports "Python is not detected"?
-Install Python 3 from [python.org/downloads](https://www.python.org/downloads/). On Windows, ensure "Add python.exe to PATH" is enabled.
+### Q1: What happens if Python is not installed on my computer?
+On Windows, `setup_and_run.bat` automatically detects missing Python and downloads/installs Python 3.11 for you via PowerShell with PATH enabled. On macOS and Linux, `setup_and_run.sh` installs Python automatically using your system package manager (Homebrew, apt, dnf, or pacman). If you prefer manual installation, download it from [python.org/downloads](https://www.python.org/downloads/).
 
 ### Q2: Instagram displays "This code doesn't work. Check the code and try again"?
 The engine handles this automatically: it requests a replacement code, retrieves the fresh code from IMAP, and enters it without manual intervention.
@@ -158,9 +158,11 @@ Close the browser tab and press `Ctrl + C` in the Terminal or Command Prompt win
 
 | Action | Command / Procedure |
 | :--- | :--- |
-| **Start on macOS** | Double-click `Start_Mac.command` |
-| **Start on Windows** | Double-click `Start_Windows.bat` |
+| **Start on Windows (1-Click)** | Double-click `setup_and_run.bat` (or `Start_Windows.bat`) |
+| **Start on macOS (1-Click)** | Double-click `Start_Mac.command` (or run `./setup_and_run.sh`) |
+| **Start on Linux (1-Click)** | Open terminal and run `./setup_and_run.sh` |
 | **Dashboard URL** | `http://127.0.0.1:5050` |
 | **Verify Mailbox** | Navigate to "Test Mailbox" tab -> Click "Test IMAP Connection" |
+| **Verify Proxy** | Proxy test button in top navigation bar |
 | **Generate Credentials** | Click "Randomize Profile" button on Registration tab |
 | **Solve Challenge** | Complete challenge in browser -> Click "I Solved It - Resume" |

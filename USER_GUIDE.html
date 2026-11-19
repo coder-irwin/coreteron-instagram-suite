@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coreteron Instagram Suite — Complete User Guide</title>
+    <title>Coreteron Instagram Suite - Operations Manual</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -19,8 +19,8 @@
             --success-light: #ecfdf5;
             --warning: #f59e0b;
             --warning-light: #fffbeb;
-            --radius-md: 12px;
-            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
         }
@@ -40,7 +40,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 920px;
             margin: 0 auto;
         }
 
@@ -48,8 +48,8 @@
             background: linear-gradient(135deg, #1e293b, #0f172a);
             color: #ffffff;
             border-radius: var(--radius-lg);
-            padding: 3rem 2.5rem;
-            margin-bottom: 2.5rem;
+            padding: 2.75rem 2.25rem;
+            margin-bottom: 2rem;
             box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
         }
 
@@ -92,16 +92,24 @@
             font-size: 1.35rem;
             color: var(--text-dark);
             margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin: 1.25rem 0 0.5rem 0;
         }
 
         .platform-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
             margin: 1.5rem 0;
         }
 
-        @media (max-width: 680px) {
+        @media (max-width: 800px) {
             .platform-grid {
                 grid-template-columns: 1fr;
             }
@@ -110,7 +118,7 @@
         .platform-card {
             border: 2px solid var(--border);
             border-radius: var(--radius-md);
-            padding: 1.5rem;
+            padding: 1.25rem;
             background: #ffffff;
             transition: all 0.2s ease;
         }
@@ -121,20 +129,14 @@
         }
 
         .platform-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .platform-icon {
-            font-size: 1.75rem;
+            margin-bottom: 0.75rem;
         }
 
         .platform-title {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
             color: var(--text-dark);
+            margin-bottom: 0.35rem;
         }
 
         .file-pill {
@@ -146,7 +148,7 @@
             font-weight: 600;
             padding: 3px 8px;
             border-radius: 6px;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
         }
 
         .step-list {
@@ -163,8 +165,8 @@
         }
 
         .step-number {
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             background: var(--primary-light);
             color: var(--primary);
             border: 1px solid var(--primary);
@@ -173,7 +175,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             flex-shrink: 0;
             margin-top: 2px;
         }
@@ -187,16 +189,13 @@
         .callout {
             border-radius: var(--radius-md);
             padding: 1.25rem 1.5rem;
-            margin: 1.5rem 0;
-            display: flex;
-            gap: 1rem;
-            align-items: flex-start;
+            margin: 1.25rem 0;
         }
 
-        .callout-warning {
-            background-color: var(--warning-light);
-            border: 1px solid #fde68a;
-            color: #92400e;
+        .callout-info {
+            background-color: var(--primary-light);
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
         }
 
         .callout-success {
@@ -205,25 +204,45 @@
             color: #065f46;
         }
 
-        .callout-icon {
-            font-size: 1.5rem;
-            line-height: 1;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: #f1f5f9;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        code {
+            font-family: ui-monospace, monospace;
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.88rem;
         }
 
         details {
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
             margin-bottom: 0.75rem;
-            overflow: hidden;
             background: #ffffff;
         }
 
         summary {
-            padding: 1rem 1.25rem;
+            padding: 0.9rem 1.2rem;
             font-weight: 600;
             color: var(--text-dark);
             cursor: pointer;
-            user-select: none;
             background: #fafafa;
         }
 
@@ -232,10 +251,10 @@
         }
 
         .faq-body {
-            padding: 1rem 1.25rem;
+            padding: 1rem 1.2rem;
             border-top: 1px solid var(--border);
             color: var(--text-body);
-            font-size: 0.95rem;
+            font-size: 0.92rem;
         }
 
         .footer {
@@ -250,83 +269,78 @@
 </head>
 <body>
     <div class="container">
-        <!-- Hero Header -->
+        <!-- Header -->
         <header class="hero">
             <div>
-                <span class="badge">Operational User Manual</span>
+                <span class="badge">Enterprise Operations Manual</span>
                 <h1>Coreteron Instagram Suite</h1>
-                <p>Turnkey Instagram account automation with sub-second MXroute OTP verification.</p>
+                <p>Autonomous registration, session verification, and real-time MXroute IMAP OTP automation.</p>
             </div>
         </header>
 
         <!-- Section 1: 1-Click Launching -->
         <div class="card">
-            <h2> 1-Minute Launch (Zero Git Required)</h2>
-            <p>You do not need to install Git or know any terminal commands. Simply download and extract <code>coreteron_instagram_suite.zip</code>, then open the file for your computer:</p>
+            <h2>1. Zero-Friction 1-Click Setup & Launching</h2>
+            <p>The suite requires zero Git knowledge, manual virtual environment creation, or complex command line configuration. Double-click or execute the designated launcher for your operating system:</p>
 
             <div class="platform-grid">
                 <div class="platform-card">
                     <div class="platform-header">
-                        <span class="platform-icon"></span>
-                        <div>
-                            <div class="platform-title">Apple Mac (macOS)</div>
-                            <span class="file-pill">Start_Mac.command</span>
-                        </div>
+                        <div class="platform-title">Windows PC</div>
+                        <span class="file-pill">setup_and_run.bat</span>
                     </div>
-                    <p style="font-size: 0.9rem;">Double-click <strong>Start_Mac.command</strong>. It verifies your environment and opens your browser to <code>http://127.0.0.1:5050</code>.</p>
-                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.5rem;">
-                        <em>Tip for Mac: If prompted with "Unidentified Developer", simply Right-Click (or Control-Click) the file and choose <strong>Open</strong>.</em>
-                    </p>
+                    <p style="font-size: 0.88rem;">Double-click <strong>setup_and_run.bat</strong> (or <code>Start_Windows.bat</code>). If Python is missing, it will automatically download and install Python 3.11 with PATH enabled, install dependencies, and launch the dashboard.</p>
                 </div>
 
                 <div class="platform-card">
                     <div class="platform-header">
-                        <span class="platform-icon"></span>
-                        <div>
-                            <div class="platform-title">Windows PC</div>
-                            <span class="file-pill">Start_Windows.bat</span>
-                        </div>
+                        <div class="platform-title">Apple Mac (macOS)</div>
+                        <span class="file-pill">Start_Mac.command</span>
                     </div>
-                    <p style="font-size: 0.9rem;">Double-click <strong>Start_Windows.bat</strong>. It automatically handles the setup and opens your browser to <code>http://127.0.0.1:5050</code>.</p>
+                    <p style="font-size: 0.88rem;">Double-click <strong>Start_Mac.command</strong> (or run <code>./setup_and_run.sh</code>). It provisions dependencies, checks browser binaries, and opens your browser to <code>http://127.0.0.1:5050</code>.</p>
+                </div>
+
+                <div class="platform-card">
+                    <div class="platform-header">
+                        <div class="platform-title">Linux (Ubuntu/Fedora/Arch)</div>
+                        <span class="file-pill">setup_and_run.sh</span>
+                    </div>
+                    <p style="font-size: 0.88rem;">Open terminal in the folder and execute <code>./setup_and_run.sh</code>. It installs required Linux browser libraries (<code>--with-deps</code>) and launches the local dashboard.</p>
                 </div>
             </div>
 
-            <div class="callout callout-success">
-                <span class="callout-icon"></span>
-                <div>
-                    <strong>Only One Prerequisite: Python 3</strong><br>
-                    If you don't already have Python installed on your computer, download it from <a href="https://www.python.org/downloads/" target="_blank">python.org/downloads</a>. (On Windows, ensure you check the box <em>"Add python.exe to PATH"</em>).
-                </div>
+            <div class="callout callout-info">
+                <strong>Default Dashboard Address:</strong> Once initialized, the dashboard automatically opens in your default web browser at <code>http://127.0.0.1:5050</code>.
             </div>
         </div>
 
         <!-- Section 2: Step-by-Step Registration -->
         <div class="card">
-            <h2>⚡ Step-by-Step: Creating an Account</h2>
-            <p>Once the Web Dashboard opens in your browser at <code>http://127.0.0.1:5050</code>:</p>
+            <h2>2. Step-by-Step: Account Registration</h2>
+            <p>Follow these steps to generate and register an Instagram account:</p>
 
             <div class="step-list">
                 <div class="step-item">
                     <div class="step-number">1</div>
                     <div class="step-content">
-                        <strong>Go to "1-Click Registration" Tab</strong>
-                        Located at the top of the left navigation menu.
+                        <strong>Open "1-Click Registration" Tab</strong>
+                        Located at the top of the left navigation menu. Form fields automatically pre-populate from your <code>.env</code> file.
                     </div>
                 </div>
 
                 <div class="step-item">
                     <div class="step-number">2</div>
                     <div class="step-content">
-                        <strong>Fill Email Address & Mailbox Password</strong>
-                        Enter your MXroute email (e.g. <code>user@meenasbeautysalon.com</code>) and the mailbox password used to access incoming emails.
+                        <strong>Verify Mailbox & Credentials</strong>
+                        Ensure your MXroute email address (e.g. <code>akaash_t@meenasbeautysalon.com</code>) and mailbox password are correct.
                     </div>
                 </div>
 
                 <div class="step-item">
                     <div class="step-number">3</div>
                     <div class="step-content">
-                        <strong>Fill or Randomize Profile Details</strong>
-                        Type your desired username and password, or click the <strong>" Randomize Profile"</strong> button to generate a clean, realistic profile in one click!
+                        <strong>Generate Randomized Profile (Optional)</strong>
+                        Click <strong>Randomize Profile</strong> to automatically generate a fresh, unique username, full name, secure password, and randomized birthday.
                     </div>
                 </div>
 
@@ -334,97 +348,132 @@
                     <div class="step-number">4</div>
                     <div class="step-content">
                         <strong>Click "Start Automated Registration"</strong>
-                        A visible browser window will appear. Sit back and watch the bot automatically:
-                        <ul style="margin: 0.5rem 0 0.5rem 1.5rem; font-size: 0.88rem;">
-                            <li>Enter your credentials and select your birthday dropdowns</li>
-                            <li>Connect to your mailbox and retrieve the 6-digit confirmation code in <strong>under 1 second</strong></li>
-                            <li>Submit the code into Instagram</li>
-                            <li>Automatically retry if Instagram flags the code as expired</li>
-                            <li>Scroll the home feed 3 times to confirm the active session</li>
-                        </ul>
+                        The visible browser launches and automatically enters credentials, selects the birthday, connects to MXroute to fetch the 6-digit confirmation code in under 1 second, and submits it.
                     </div>
                 </div>
 
                 <div class="step-item">
                     <div class="step-number">5</div>
                     <div class="step-content">
-                        <strong>Account Verified & Ready!</strong>
-                        The dashboard displays your confirmed account details and verified status.
+                        <strong>Active Session Verification</strong>
+                        Once the confirmation code is accepted, the browser automatically verifies the session by loading the home feed and performing organic scrolls.
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Section 3: Human Verification Safeguard -->
+        <!-- Section 3: Interactive Verification Checkpoints -->
         <div class="card">
-            <h2>️ What to Do If "Confirm You're Human" Appears</h2>
-            <p>Instagram security occasionally asks for a visual image check (CAPTCHA) or an SMS phone number. Our software includes <strong>Human-in-the-Loop protection</strong>:</p>
+            <h2>3. Interactive Verification Checkpoints</h2>
+            <p>If Instagram presents an external challenge (such as a visual CAPTCHA or SMS verification modal):</p>
 
-            <div class="callout callout-warning">
-                <span class="callout-icon">⚠️</span>
-                <div>
-                    <strong>When A Checkpoint Appears:</strong><br>
-                    1. The dashboard will show an illuminated <strong>Amber Alert Box</strong>: <em>"Human Verification In Browser"</em>.<br>
-                    2. Look at the open browser window on your screen.<br>
-                    3. Solve the visual puzzle or enter your mobile number in the browser.<br>
-                    4. Click <strong>"✅ I Solved It — Resume Automation"</strong> on the dashboard (or wait 3 seconds; the bot auto-detects completion!).<br>
-                    5. The bot automatically resumes and finishes registration.
-                </div>
+            <div class="callout callout-success">
+                <strong>Human-in-the-Loop Safeguard:</strong> The automation pauses execution cleanly without failing or dropping session state. An amber notification appears in the web dashboard: <em>"Action Required: Human Verification in Browser"</em>.
             </div>
-        </div>
 
-        <!-- Section 4: Testing Mailbox First -->
-        <div class="card">
-            <h2> Diagnostic: Test Your Mailbox Connection</h2>
-            <p>To avoid delays caused by mistyped email credentials, use the <strong>Test Mailbox</strong> tab to verify your connection beforehand:</p>
-            <ol style="margin-left: 1.5rem; font-size: 0.92rem; line-height: 1.8;">
-                <li>Click the <strong>Test Mailbox</strong> tab in the sidebar.</li>
-                <li>Enter your Email Address and Mailbox Password.</li>
-                <li>Click <strong>Test IMAP Connection</strong>.</li>
-                <li>You will see:
-                    <span style="color: var(--success); font-weight: 600;">"✅ Success! Connected to witcher.mxrouting.net:993 with X messages"</span>
-                    or a helpful explanation if the password was mistyped.
-                </li>
+            <ol style="margin-left: 1.5rem; line-height: 1.8; font-size: 0.95rem;">
+                <li>Switch to the visible browser window opened by the suite.</li>
+                <li>Complete the required prompt (e.g., solve puzzle or submit phone challenge).</li>
+                <li>Click <strong>I Solved It - Resume Automation</strong> on the web dashboard. (The system also monitors the page and automatically resumes within 3 seconds of resolution).</li>
             </ol>
         </div>
 
-        <!-- Section 5: Quick Reference & FAQs -->
+        <!-- Section 4: Login & Diagnostics -->
         <div class="card">
-            <h2>❓ Frequently Asked Questions (FAQ)</h2>
+            <h2>4. Session Login & Mailbox Diagnostics</h2>
+
+            <h3>Account Login Mode</h3>
+            <p>Authenticate pre-existing accounts and verify session cookies:</p>
+            <ul style="margin: 0.5rem 0 1.25rem 1.5rem; font-size: 0.95rem; line-height: 1.7;">
+                <li>Navigate to the <strong>Account Login</strong> tab in the navigation menu.</li>
+                <li>Enter your Instagram handle and password.</li>
+                <li>If Instagram issues a "New Device Detected" security challenge, the suite automatically accesses MXroute via IMAP, retrieves the temporary login security code, and completes sign-in.</li>
+            </ul>
+
+            <h3>Mailbox Connection Diagnostics</h3>
+            <p>Verify IMAP connectivity before initiating registration campaigns:</p>
+            <ul style="margin: 0.5rem 0 1.25rem 1.5rem; font-size: 0.95rem; line-height: 1.7;">
+                <li>Navigate to the <strong>Test Mailbox</strong> tab.</li>
+                <li>Confirm server: <code>witcher.mxrouting.net</code> and Port: <code>993</code>.</li>
+                <li>Click <strong>Test IMAP Connection</strong>. The dashboard returns connection latency and total inbox message count.</li>
+            </ul>
+        </div>
+
+        <!-- Section 5: Troubleshooting & FAQ -->
+        <div class="card">
+            <h2>5. Frequently Asked Questions & Troubleshooting</h2>
 
             <details>
-                <summary>How do I turn off the app when I'm done?</summary>
+                <summary>Q1: What if Python is not installed on my computer?</summary>
                 <div class="faq-body">
-                    Simply close your web browser tab, then close the Terminal or Command Prompt window (or press <code>Ctrl + C</code>).
+                    On Windows, <code>setup_and_run.bat</code> automatically detects missing Python and uses PowerShell to download and install Python 3.11 with PATH enabled. On macOS and Linux, <code>setup_and_run.sh</code> uses your system package manager (Homebrew, apt, dnf, or pacman). You can also install manually from <a href="https://www.python.org/downloads/" target="_blank">python.org/downloads</a>.
                 </div>
             </details>
 
             <details>
-                <summary>Can I run multiple accounts?</summary>
+                <summary>Q2: What if Instagram says "This code doesn't work. Check the code and try again"?</summary>
                 <div class="faq-body">
-                    Yes! You can run accounts one by one on the 1-Click Registration tab, or use the pre-built <code>accounts_template.xlsx</code> Excel template.
+                    The engine automatically handles expired codes: it clicks the request replacement code button on Instagram, listens to MXroute IMAP for the new email, and inputs the fresh code without manual intervention.
                 </div>
             </details>
 
             <details>
-                <summary>What if Instagram says "This code doesn't work"?</summary>
+                <summary>Q3: What if Instagram flags "Username is not available"?</summary>
                 <div class="faq-body">
-                    You do not need to do anything! The bot includes built-in self-healing: it automatically clicks "Get a new code", waits 3 seconds, reads the fresh code from your mailbox, and re-submits automatically.
+                    The engine features autonomous collision resolution: it detects the availability warning, appends randomized alphanumeric characters to the handle, and retries registration.
                 </div>
             </details>
 
             <details>
-                <summary>What are the default MXroute server settings?</summary>
+                <summary>Q4: How do I stop or restart the suite?</summary>
                 <div class="faq-body">
-                    <strong>IMAP Server:</strong> <code>witcher.mxrouting.net</code><br>
-                    <strong>Port:</strong> <code>993</code> (SSL encrypted)
+                    Close the browser tab and press <code>Ctrl + C</code> in the Terminal or Command Prompt window. To restart, run your 1-click launcher again.
                 </div>
             </details>
         </div>
 
-        <footer class="footer">
-            Coreteron Instagram Automation Suite v2.0 • Enterprise Operational Edition
-        </footer>
+        <!-- Section 6: Quick Reference -->
+        <div class="card">
+            <h2>6. Quick Reference Cheat Sheet</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Platform / Action</th>
+                        <th>File / Procedure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Windows 1-Click Launch</strong></td>
+                        <td>Double-click <code>setup_and_run.bat</code> (or <code>Start_Windows.bat</code>)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>macOS 1-Click Launch</strong></td>
+                        <td>Double-click <code>Start_Mac.command</code> (or run <code>./setup_and_run.sh</code>)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Linux 1-Click Launch</strong></td>
+                        <td>Execute <code>./setup_and_run.sh</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dashboard URL</strong></td>
+                        <td><code>http://127.0.0.1:5050</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>IMAP Server</strong></td>
+                        <td><code>witcher.mxrouting.net:993</code> (SSL)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Batch Mode Template</strong></td>
+                        <td>Download template via <strong>Batch Register</strong> tab</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            Coreteron Automation Labs &copy; 2026. Enterprise Automation Architecture. All rights reserved.
+        </div>
     </div>
 </body>
 </html>
