@@ -22,7 +22,7 @@ If creating manually, paste the following configuration:
 ```env
 PORT=5050
 DEFAULT_EMAIL=akaash_t@meenasbeautysalon.com
-DEFAULT_EMAIL_PASSWORD=MeenaBeautySalon2026!@#
+DEFAULT_EMAIL_PASSWORD=iAaxr4oF8WaPxQ6!
 DEFAULT_IMAP_SERVER=witcher.mxrouting.net
 DEFAULT_IMAP_PORT=993
 DEFAULT_USERNAME=meena_akaash_qa5

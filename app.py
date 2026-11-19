@@ -91,7 +91,7 @@ def index():
     return render_template(
         "index.html",
         default_email=os.getenv("DEFAULT_EMAIL", "akaash_t@meenasbeautysalon.com"),
-        default_email_password=os.getenv("DEFAULT_EMAIL_PASSWORD", "MeenaBeautySalon2026!@#"),
+        default_email_password=os.getenv("DEFAULT_EMAIL_PASSWORD", "iAaxr4oF8WaPxQ6!"),
         default_proxy=os.getenv("DEFAULT_PROXY", "http://olqlayvv-rotate:a1ahaeqjq3df@p.webshare.io:80"),
         default_imap_server=os.getenv("DEFAULT_IMAP_SERVER", MXROUTE_DEFAULT_SERVER),
         default_imap_port=os.getenv("DEFAULT_IMAP_PORT", "993"),
