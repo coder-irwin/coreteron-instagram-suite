@@ -331,12 +331,17 @@ def fetch_mxroute_otp(
     email_address: str,
     password: str,
     server: str = DEFAULT_SERVER,
+    port: int = DEFAULT_IMAP_PORT,
     timeout_seconds: int = 90,
     min_msg_id: int = 0,
     exclude_code: str = "",
 ) -> Optional[str]:
     """Helper to fetch Instagram OTP from MXroute IMAP."""
-    reader = MXRouteIMAPReader(email_address=email_address, password=password, server=server)
+    try:
+        port_num = int(port)
+    except Exception:
+        port_num = DEFAULT_IMAP_PORT
+    reader = MXRouteIMAPReader(email_address=email_address, password=password, server=server, port=port_num)
     try:
         reader.connect()
         return reader.poll_for_otp(
