@@ -918,9 +918,16 @@ class AutomationSession:
                 await pwd_field.fill(account.password)
                 await page.wait_for_timeout(600)
 
-                login_btn = page.get_by_role("button", name=re.compile(r"^log\s*in$", re.I)).first
+                login_btn = page.locator(
+                    "div[role='button']:has-text('Log in'), "
+                    "button:has-text('Log in'), "
+                    "div[aria-label='Log In'], "
+                    "button[type='submit']:visible, "
+                    "input[type='submit']:visible"
+                ).first
+
                 if not await login_btn.is_visible(timeout=3_000):
-                    login_btn = page.locator("button:has-text('Log in'), button[type='submit']:visible, div[role='button']:has-text('Log in')").first
+                    login_btn = page.get_by_role("button", name=re.compile(r"^log\s*in$", re.I)).first
 
                 await login_btn.click()
                 self.emit("login_submit", "Credentials Submitted", "Submitted login. Checking for device verification...")
@@ -932,8 +939,30 @@ class AutomationSession:
                 except Exception:
                     pass
 
-                if "codeentry" in page.url.lower() or "check your email" in body_txt or "security code" in body_txt:
-                    self.emit("otp_detect", "Device Verification Required", f"Polling MXroute IMAP for device login code...")
+                # 1. Check for Invalid Credentials
+                if "sorry, your password was incorrect" in body_txt or "doesn't belong to an account" in body_txt or "incorrect password" in body_txt:
+                    self.emit("login_failed", "Invalid Credentials", "Instagram reported incorrect username or password.", level="error")
+                    result["status"] = "INVALID_CREDENTIALS"
+                    result["details"] = "Invalid credentials entered."
+                    return result
+
+                # 2. Check for Device Notification Approval (Instagram Auth Platform)
+                if any(p in body_txt for p in ["check your notifications on another device", "waiting for approval", "approve the login", "approve from the other device"]):
+                    self.emit(
+                        "device_approval",
+                        "Device Approval Required",
+                        "Instagram sent an approval notification to your device. Please approve the login prompt on your device.",
+                        level="warning",
+                        human_required=True,
+                    )
+                    for _ in range(15):
+                        await page.wait_for_timeout(2_000)
+                        if await self.is_home_feed_active(page) or self.human_signal.is_set():
+                            break
+
+                # 3. Check for Email OTP Security Code
+                if "codeentry" in page.url.lower() or "check your email" in body_txt or "security code" in body_txt or "enter the code" in body_txt:
+                    self.emit("otp_detect", "Device Verification Required", "Polling MXroute IMAP for device login code...")
                     login_otp = fetch_mxroute_otp(
                         email_address=account.email,
                         password=account.email_password,
@@ -944,13 +973,14 @@ class AutomationSession:
                     if login_otp:
                         result["otp"] = login_otp
                         self.emit("otp_received", "Login Code Extracted", f"Received login OTP: {login_otp}", level="success")
-                        code_input = page.locator("input[name='verificationCode'], input[name='security_code'], input[placeholder*='code']").first
+                        code_input = page.locator("input[name='verificationCode'], input[name='security_code'], input[inputmode='numeric'], input[maxlength='6'], input[placeholder*='code']").first
                         if await code_input.is_visible(timeout=3_000):
                             await code_input.fill(login_otp)
                             await page.wait_for_timeout(800)
                             await self.click_continue_if_present(page)
                             await page.wait_for_timeout(4_000)
 
+                # 4. Handle Post-Login Popups ("Save info", "Not now", etc.)
                 for _ in range(6):
                     await self.click_continue_if_present(page)
                     await page.wait_for_timeout(1_000)
