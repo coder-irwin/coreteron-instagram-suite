@@ -380,19 +380,73 @@ class AutomationSession:
             try:
                 # 1. Load Signup Page
                 self.emit("nav", "Opening Instagram", f"Navigating to {SIGNUP_URL}...")
-                await page.goto(SIGNUP_URL, wait_until="domcontentloaded", timeout=NAVIGATION_TIMEOUT_MS)
+                try:
+                    await page.goto(SIGNUP_URL, wait_until="domcontentloaded", timeout=NAVIGATION_TIMEOUT_MS)
+                except Exception:
+                    await page.goto(SIGNUP_URL, timeout=NAVIGATION_TIMEOUT_MS)
+
                 await page.wait_for_timeout(UI_SETTLE_MS)
                 await self.dismiss_cookies(page)
+
+                # Check if redirected to login page and click 'Sign up'
+                if "/accounts/login" in page.url or page.url.rstrip("/").endswith("instagram.com"):
+                    signup_link = page.locator("a[href*='/accounts/emailsignup'], a:has-text('Sign up'), span:has-text('Sign up')").first
+                    if await signup_link.is_visible(timeout=3_000):
+                        await signup_link.click()
+                        await page.wait_for_timeout(2_000)
 
                 # 2. Fill Registration Fields
                 self.emit("form_fill", "Entering Information", f"Filling email, name, username (@{account.username}), and secure password...")
                 
-                email_input = page.locator("input[name='emailOrPhone']").first
-                name_input = page.locator("input[name='fullName']").first
-                user_input = page.locator("input[name='username']").first
-                pwd_input = page.locator("input[name='password']").first
+                email_input = page.locator(
+                    "label:has-text('Mobile number or email') input, "
+                    "label:has-text('Mobile Number or Email') input, "
+                    "label:has-text('email') input, "
+                    "div:has-text('Mobile number or email') > input, "
+                    "input[name='emailOrPhone'], "
+                    "input[aria-label*='Mobile Number or Email'], "
+                    "input[aria-label*='Email'], "
+                    "input[name='email'], "
+                    "input[type='email']"
+                ).first
 
-                await email_input.wait_for(state="visible", timeout=10_000)
+                name_input = page.locator(
+                    "label:has-text('Full name') input, "
+                    "label:has-text('Full Name') input, "
+                    "label:has-text('Name') input, "
+                    "input[name='fullName'], "
+                    "input[aria-label*='Full Name'], "
+                    "input[placeholder*='Full Name']"
+                ).first
+
+                user_input = page.locator(
+                    "input[aria-label='Username'], "
+                    "label:has-text('Username') input, "
+                    "input[name='username'], "
+                    "input[placeholder*='Username'], "
+                    "input[role='combobox'][aria-label='Username']"
+                ).first
+
+                pwd_input = page.locator(
+                    "label:has-text('Password') input, "
+                    "input[name='password'], "
+                    "input[type='password']"
+                ).first
+
+                # Wait for form with graceful fallback
+                try:
+                    await email_input.wait_for(state="visible", timeout=25_000)
+                except Exception:
+                    await self.dismiss_cookies(page)
+                    all_inputs = await page.locator("input:visible").all()
+                    if len(all_inputs) >= 4:
+                        email_input = all_inputs[0]
+                        pwd_input = all_inputs[1]
+                        name_input = all_inputs[2]
+                        user_input = all_inputs[3]
+                    else:
+                        await email_input.wait_for(state="visible", timeout=15_000)
+
                 await email_input.fill(account.email)
                 await page.wait_for_timeout(300)
 
@@ -406,9 +460,15 @@ class AutomationSession:
                 await page.wait_for_timeout(600)
 
                 # Submit initial form
-                submit_btn = page.get_by_role("button", name=re.compile(r"^sign\s*up$", re.I)).first
+                submit_btn = page.get_by_role("button", name=re.compile(r"^(submit|sign\s*up)$", re.I)).first
                 if not await submit_btn.is_visible(timeout=3_000):
-                    submit_btn = page.locator("button[type='submit']:visible").first
+                    submit_btn = page.locator(
+                        "button:has-text('Submit'), "
+                        "button:has-text('Sign up'), "
+                        "div[role='button']:has-text('Submit'), "
+                        "div[role='button']:has-text('Sign up'), "
+                        "button[type='submit']:visible"
+                    ).first
 
                 await submit_btn.click()
                 self.emit("form_submit", "Initial Form Submitted", "Submitted registration credentials. Waiting for next step...")
@@ -441,7 +501,11 @@ class AutomationSession:
                         page.locator("input[name='confirmationCode']").first,
                         page.locator("input[aria-label*='Confirmation Code']").first,
                         page.locator("input[placeholder*='Confirmation Code']").first,
+                        page.locator("label:has-text('Confirmation code') input").first,
+                        page.locator("label:has-text('confirmation code') input").first,
+                        page.locator("input[inputmode='numeric']").first,
                         page.locator("input[maxlength='6']").first,
+                        page.locator("input[type='text']:visible").first,
                     ]
                     for cand in candidates:
                         try:
@@ -647,18 +711,31 @@ class AutomationSession:
                 await page.wait_for_timeout(UI_SETTLE_MS)
                 await self.dismiss_cookies(page)
 
-                user_field = page.locator("input[name='username'], input[name='emailOrPhone']").first
-                pwd_field = page.locator("input[name='password'], input[type='password']").first
+                user_field = page.locator(
+                    "label:has-text('Mobile number, username or email') input, "
+                    "label:has-text('username') input, "
+                    "label:has-text('email') input, "
+                    "input[name='email'], "
+                    "input[name='username'], "
+                    "input[name='emailOrPhone'], "
+                    "input[type='text']:visible"
+                ).first
+                pwd_field = page.locator(
+                    "label:has-text('Password') input, "
+                    "input[name='pass'], "
+                    "input[name='password'], "
+                    "input[type='password']:visible"
+                ).first
 
-                await user_field.wait_for(state="visible", timeout=10_000)
+                await user_field.wait_for(state="visible", timeout=25_000)
                 await user_field.fill(account.username)
                 await page.wait_for_timeout(300)
                 await pwd_field.fill(account.password)
                 await page.wait_for_timeout(600)
 
                 login_btn = page.get_by_role("button", name=re.compile(r"^log\s*in$", re.I)).first
-                if not await login_btn.is_visible(timeout=2_000):
-                    login_btn = page.locator("button[type='submit']:visible").first
+                if not await login_btn.is_visible(timeout=3_000):
+                    login_btn = page.locator("button:has-text('Log in'), button[type='submit']:visible, div[role='button']:has-text('Log in')").first
 
                 await login_btn.click()
                 self.emit("login_submit", "Credentials Submitted", "Submitted login. Checking for device verification...")
