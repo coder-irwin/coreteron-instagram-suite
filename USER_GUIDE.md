@@ -35,10 +35,9 @@ The **Coreteron Instagram Suite** is a desktop application engineered for high-r
 
 ## 2. Prerequisites
 
-Runtime Requirement:
-- **Python 3**: Verify via `python3 --version` or `python --version`.
-- Official download: [python.org/downloads](https://www.python.org/downloads/).
-  - For Windows: Check "Add python.exe to PATH" during installation.
+Zero manual technical setup is required. The suite provides an automated installer for all platforms:
+- **Windows**: Double-click `setup_and_run.bat` (or `Start_Windows.bat`). If Python is not installed, it automatically downloads and installs Python 3.11 with PATH enabled.
+- **macOS / Linux**: Run `./setup_and_run.sh` or double-click `Start_Mac.command`. If Python is missing, it will install it via system package managers (Homebrew on macOS; apt/dnf/pacman on Linux).
 
 ---
 
@@ -46,12 +45,14 @@ Runtime Requirement:
 
 ### On Apple Mac (macOS)
 1. Navigate to the `coreteron_instagram_suite` folder.
-2. Double-click `Start_Mac.command` (or execute `bash Start_Mac.command` in Terminal).
+2. Double-click `Start_Mac.command` (or run `./setup_and_run.sh` in Terminal).
 3. The launcher automatically:
-   - Verifies Python runtime
-   - Installs required dependencies
-   - Verifies Playwright Chromium browser
+   - Verifies or installs Python runtime
+   - Creates an isolated virtual environment (`.venv`)
+   - Installs required dependencies (`requirements.txt`)
+   - Installs Playwright Chromium browser
    - Launches the web dashboard at: `http://127.0.0.1:5050`
+   - Automatically opens your default web browser
 
 Note for macOS: If gatekeeper prompts that the script was downloaded from the internet, right-click `Start_Mac.command` and select **Open**.
 
@@ -59,8 +60,22 @@ Note for macOS: If gatekeeper prompts that the script was downloaded from the in
 
 ### On Windows PC
 1. Navigate to the `coreteron_instagram_suite` folder.
-2. Double-click `Start_Windows.bat`.
-3. The launcher configures the environment and launches your default browser to: `http://127.0.0.1:5050`.
+2. Double-click `setup_and_run.bat` (or `Start_Windows.bat`).
+3. The launcher automatically:
+   - Verifies Python (and auto-installs Python 3.11 if missing)
+   - Creates an isolated virtual environment (`.venv`)
+   - Installs required dependencies and Playwright Chromium
+   - Opens your default web browser to: `http://127.0.0.1:5050`
+
+---
+
+### On Linux (Ubuntu / Debian / Fedora / Arch)
+1. Open Terminal in the repository folder.
+2. Run:
+   ```bash
+   ./setup_and_run.sh
+   ```
+3. The launcher automatically installs system browser libraries, dependencies, and launches the dashboard.
 
 ---
 
