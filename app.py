@@ -18,6 +18,7 @@ import logging
 import os
 from pathlib import Path
 import queue
+import random
 import re
 import threading
 import time
@@ -95,7 +96,7 @@ def index():
         default_proxy=os.getenv("DEFAULT_PROXY", "http://olqlayvv-rotate:a1ahaeqjq3df@p.webshare.io:80"),
         default_imap_server=os.getenv("DEFAULT_IMAP_SERVER", MXROUTE_DEFAULT_SERVER),
         default_imap_port=os.getenv("DEFAULT_IMAP_PORT", "993"),
-        default_username=os.getenv("DEFAULT_USERNAME", "meena_akaash_qa5"),
+        default_username=os.getenv("DEFAULT_USERNAME") or f"meena_akaash_qa{random.randint(100, 9999)}",
     )
 
 

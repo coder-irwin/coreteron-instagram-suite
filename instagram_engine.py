@@ -555,11 +555,90 @@ class AutomationSession:
                 self.emit("form_submit", "Initial Form Submitted", "Submitted registration credentials. Waiting for confirmation step...")
                 await page.wait_for_timeout(3_000)
 
-                # 3. Handle legacy second-screen Birthday if presented
+                # 3. Check for Inline Username Conflict / Email Conflict and Self-Heal
+                for attempt in range(1, 6):
+                    body_curr = ""
+                    try:
+                        body_curr = (await page.locator("body").inner_text(timeout=2_000)).lower()
+                    except Exception:
+                        pass
+
+                    # If confirmation screen reached, advance immediately
+                    if any(p in body_curr for p in [
+                        "enter the confirmation code",
+                        "enter the 6-digit code",
+                        "confirmation code",
+                        "sent a code to",
+                        "sent to",
+                    ]):
+                        break
+
+                    # Check if username is taken
+                    is_username_taken = any(p in body_curr for p in [
+                        "is not available",
+                        "isn't available",
+                        "username is invalid",
+                        "another account is using the same username",
+                        "already in use",
+                    ])
+
+                    if is_username_taken:
+                        base_handle = re.sub(r"[\d_]+$", "", account.username) or "meena_akaash_qa"
+                        new_handle = f"{base_handle}_{random.randint(1000, 99999)}"
+                        self.emit(
+                            "username_conflict",
+                            "Resolving Username Collision",
+                            f"Username @{account.username} is already taken on Instagram. Auto-resolving to @{new_handle}...",
+                            level="warning",
+                        )
+                        account.username = new_handle
+                        result["username"] = new_handle
+
+                        if not await user_input.is_visible(timeout=1_500):
+                            user_input = page.locator("input[aria-label='Username'], label:has-text('Username') input, input[name='username']").first
+
+                        await user_input.click()
+                        await user_input.fill("")
+                        await user_input.fill(new_handle)
+                        await user_input.press("Tab")
+                        await page.wait_for_timeout(1_500)
+
+                        # Re-click Submit
+                        if not await submit_btn.is_visible(timeout=1_500):
+                            submit_btn = page.locator(
+                                "button:has-text('Submit'), "
+                                "div[role='button']:has-text('Submit'), "
+                                "button:has-text('Sign up'), "
+                                "div[role='button']:has-text('Sign up'), "
+                                "button[type='submit']:visible"
+                            ).first
+                        await submit_btn.click()
+                        self.emit(
+                            "form_submit",
+                            "Credentials Re-submitted",
+                            f"Re-submitted with unique handle @{new_handle}. Validating...",
+                        )
+                        await page.wait_for_timeout(3_000)
+                    else:
+                        break
+
+                # Check if email is already registered
+                if "another account is using the same email" in body_curr or "account with this email already exists" in body_curr:
+                    self.emit(
+                        "email_conflict",
+                        "Email Already Registered",
+                        f"Email {account.email} is already associated with an existing Instagram account.",
+                        level="error",
+                    )
+                    result["status"] = "EMAIL_ALREADY_EXISTS"
+                    result["details"] = f"Email {account.email} already exists on Instagram."
+                    return result
+
+                # 4. Handle legacy second-screen Birthday if presented
                 await self.handle_birthday_if_present(page, account.birthday)
                 await page.wait_for_timeout(2_000)
 
-                # 4. Check for Checkpoint/CAPTCHA
+                # 5. Check for Checkpoint/CAPTCHA
                 body_text = ""
                 try:
                     body_text = (await page.locator("body").inner_text(timeout=2_000)).lower()
@@ -718,8 +797,10 @@ class AutomationSession:
                     except Exception:
                         pass
 
-                    # Smart Click popups
-                    await self.click_continue_if_present(page)
+                    # Smart Click post-verification popups (only after leaving OTP screen)
+                    still_on_otp = any(p in curr_body for p in ["confirmation code", "6-digit code"])
+                    if not still_on_otp:
+                        await self.click_continue_if_present(page)
 
                     # Check for Suspended / Checkpoint
                     if "confirm you're human" in curr_body or "suspended" in curr_url:
