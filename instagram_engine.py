@@ -222,14 +222,83 @@ class AutomationSession:
                 continue
         return False
 
-    async def handle_birthday_if_present(self, page: Page, birthday_str: str) -> bool:
-        """Select birth month, day, and year dropdowns if displayed."""
-        body = ""
+    async def fill_inline_birthday(self, page: Page, birthday_str: str) -> bool:
+        """Fill Month, Day, and Year on Instagram's inline WebBloks registration form."""
+        month_cb = page.locator("div[aria-label='Select Month'], *[role='combobox'][aria-label='Select Month']").first
         try:
-            body = (await page.locator("body").inner_text(timeout=1_500)).lower()
+            if not await month_cb.is_visible(timeout=2_500):
+                return False
         except Exception:
-            pass
-        if "birthday" not in body and "date of birth" not in body:
+            return False
+
+        self.emit("birthday", "Birthday Selection", "Selecting birth date details on signup form...")
+
+        try:
+            dt = datetime.strptime(birthday_str, "%Y-%m-%d")
+        except Exception:
+            dt = datetime(1995, 6, 15)
+
+        month_names = [
+            "", "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ]
+        target_month = month_names[dt.month]
+        target_day = str(dt.day)
+        target_year = str(dt.year)
+
+        # 1. Select Month
+        try:
+            await month_cb.click()
+            await page.wait_for_timeout(350)
+            m_opt = page.locator("div[role='option']:visible").filter(has_text=re.compile(f"^{target_month}$", re.I)).first
+            if await m_opt.is_visible(timeout=1_500):
+                await m_opt.click()
+            else:
+                m_opt_alt = page.locator(f"div[role='option']:visible:has-text('{target_month[:3]}')").first
+                if await m_opt_alt.is_visible(timeout=1_000):
+                    await m_opt_alt.click()
+            await page.wait_for_timeout(350)
+        except Exception as e:
+            logger.warning("Month combobox selection failed: %s", e)
+
+        # 2. Select Day
+        try:
+            day_cb = page.locator("div[aria-label='Select Day'], *[role='combobox'][aria-label='Select Day']").first
+            if await day_cb.is_visible(timeout=1_500):
+                await day_cb.click()
+                await page.wait_for_timeout(350)
+                d_opt = page.locator("div[role='option']:visible").filter(has_text=re.compile(f"^{target_day}$")).first
+                if await d_opt.is_visible(timeout=1_500):
+                    await d_opt.click()
+                await page.wait_for_timeout(350)
+        except Exception as e:
+            logger.warning("Day combobox selection failed: %s", e)
+
+        # 3. Select Year
+        try:
+            year_cb = page.locator("div[aria-label='Select Year'], *[role='combobox'][aria-label='Select Year']").first
+            if await year_cb.is_visible(timeout=1_500):
+                await year_cb.click()
+                await page.wait_for_timeout(350)
+                y_opt = page.locator("div[role='option']:visible").filter(has_text=re.compile(f"^{target_year}$")).first
+                if not await y_opt.is_visible(timeout=1_000):
+                    await y_opt.scroll_into_view_if_needed()
+                if await y_opt.is_visible(timeout=1_500):
+                    await y_opt.click()
+                await page.wait_for_timeout(350)
+        except Exception as e:
+            logger.warning("Year combobox selection failed: %s", e)
+
+        self.emit("birthday_set", "Birthday Selected", f"Birth date configured: {target_month} {target_day}, {target_year}")
+        return True
+
+    async def handle_birthday_if_present(self, page: Page, birthday_str: str) -> bool:
+        """Select birth month, day, and year dropdowns if displayed as HTML selects."""
+        month_sel = page.locator("select[title*='Month']").first
+        try:
+            if not await month_sel.is_visible(timeout=800):
+                return False
+        except Exception:
             return False
 
         self.emit("birthday", "Birthday Verification", "Selecting birthday options...")
@@ -450,31 +519,43 @@ class AutomationSession:
                 await email_input.fill(account.email)
                 await page.wait_for_timeout(300)
 
+                await pwd_input.fill(account.password)
+                await page.wait_for_timeout(400)
+
+                # Fill inline birthday comboboxes on initial signup form
+                await self.fill_inline_birthday(page, account.birthday)
+                await page.wait_for_timeout(400)
+
+                # Re-verify name and username inputs in case DOM re-rendered
+                if not await name_input.is_visible(timeout=1_500):
+                    all_inps = await page.locator("input:visible").all()
+                    if len(all_inps) >= 4:
+                        name_input = all_inps[2]
+                        user_input = all_inps[3]
+
                 await name_input.fill(account.full_name)
                 await page.wait_for_timeout(300)
 
                 await user_input.fill(account.username)
-                await page.wait_for_timeout(300)
-
-                await pwd_input.fill(account.password)
                 await page.wait_for_timeout(600)
 
                 # Submit initial form
-                submit_btn = page.get_by_role("button", name=re.compile(r"^(submit|sign\s*up)$", re.I)).first
+                submit_btn = page.locator(
+                    "button:has-text('Submit'), "
+                    "div[role='button']:has-text('Submit'), "
+                    "button:has-text('Sign up'), "
+                    "div[role='button']:has-text('Sign up'), "
+                    "button[type='submit']:visible"
+                ).first
+
                 if not await submit_btn.is_visible(timeout=3_000):
-                    submit_btn = page.locator(
-                        "button:has-text('Submit'), "
-                        "button:has-text('Sign up'), "
-                        "div[role='button']:has-text('Submit'), "
-                        "div[role='button']:has-text('Sign up'), "
-                        "button[type='submit']:visible"
-                    ).first
+                    submit_btn = page.get_by_role("button", name=re.compile(r"^(submit|sign\s*up)$", re.I)).first
 
                 await submit_btn.click()
-                self.emit("form_submit", "Initial Form Submitted", "Submitted registration credentials. Waiting for next step...")
+                self.emit("form_submit", "Initial Form Submitted", "Submitted registration credentials. Waiting for confirmation step...")
                 await page.wait_for_timeout(3_000)
 
-                # 3. Handle Birthday if asked
+                # 3. Handle legacy second-screen Birthday if presented
                 await self.handle_birthday_if_present(page, account.birthday)
                 await page.wait_for_timeout(2_000)
 
@@ -495,27 +576,44 @@ class AutomationSession:
                 # 5. Detect Email OTP Page
                 self.emit("otp_detect", "Confirmation Code Screen", "Waiting for confirmation code entry screen...")
                 otp_input = None
-                for _ in range(12):
-                    candidates = [
-                        page.locator("input[name='email_confirmation_code']").first,
-                        page.locator("input[name='confirmationCode']").first,
-                        page.locator("input[aria-label*='Confirmation Code']").first,
-                        page.locator("input[placeholder*='Confirmation Code']").first,
-                        page.locator("label:has-text('Confirmation code') input").first,
-                        page.locator("label:has-text('confirmation code') input").first,
-                        page.locator("input[inputmode='numeric']").first,
-                        page.locator("input[maxlength='6']").first,
-                        page.locator("input[type='text']:visible").first,
-                    ]
-                    for cand in candidates:
-                        try:
-                            if await cand.is_visible(timeout=1_000):
-                                otp_input = cand
-                                break
-                        except Exception:
-                            continue
-                    if otp_input:
-                        break
+                for _ in range(20):
+                    body_now = ""
+                    try:
+                        body_now = (await page.locator("body").inner_text(timeout=1_000)).lower()
+                    except Exception:
+                        pass
+
+                    is_confirmation_screen = any(phrase in body_now for phrase in [
+                        "enter the confirmation code",
+                        "enter the 6-digit code",
+                        "confirmation code",
+                        "sent a code to",
+                        "sent to",
+                    ])
+
+                    if is_confirmation_screen:
+                        candidates = [
+                            page.locator("label:has-text('Confirmation code') input").first,
+                            page.locator("label:has-text('confirmation code') input").first,
+                            page.locator("input[name='email_confirmation_code']").first,
+                            page.locator("input[name='confirmationCode']").first,
+                            page.locator("input[aria-label*='Confirmation Code']").first,
+                            page.locator("input[placeholder*='Confirmation Code']").first,
+                            page.locator("input[inputmode='numeric']").first,
+                            page.locator("input[maxlength='6']").first,
+                            page.locator("input:visible").first,
+                        ]
+                        for cand in candidates:
+                            try:
+                                if await cand.is_visible(timeout=800):
+                                    otp_input = cand
+                                    break
+                            except Exception:
+                                continue
+                        if otp_input:
+                            break
+
+                    await self.handle_birthday_if_present(page, account.birthday)
                     await self.click_continue_if_present(page)
                     await page.wait_for_timeout(1_000)
 
@@ -559,12 +657,18 @@ class AutomationSession:
                 await otp_input.type(otp_code, delay=120)
                 await page.wait_for_timeout(1_000)
 
-                # Submit code
-                next_btn = page.get_by_role("button", name=re.compile(r"^(continue|next|submit|confirm|verify)$", re.I)).first
-                if not await next_btn.is_visible(timeout=2_000):
-                    next_btn = page.locator("button[type='submit']:visible, div[role='button']:has-text('Next')").first
+                # Submit code (Instagram confirmation button is usually 'Continue' or 'Next')
+                next_btn = page.locator(
+                    "div[role='button']:has-text('Continue'), "
+                    "button:has-text('Continue'), "
+                    "div[role='button']:has-text('Next'), "
+                    "button:has-text('Next'), "
+                    "div[role='button']:has-text('Submit'), "
+                    "button:has-text('Submit'), "
+                    "button[type='submit']:visible"
+                ).first
 
-                if await next_btn.is_visible(timeout=2_000):
+                if await next_btn.is_visible(timeout=3_000):
                     await next_btn.click()
                 else:
                     await otp_input.press("Enter")
