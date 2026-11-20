@@ -62,7 +62,7 @@ class AccountData:
     phone_number: str = ""
     proxy: str = ""
     smspool_api_key: str = ""
-    smspool_country: str = "US"
+    smspool_country: str = "CA"
 
     def validate(self) -> None:
         if not self.email or "@" not in self.email:
@@ -365,7 +365,7 @@ class AutomationSession:
             await page.wait_for_timeout(2_000)
         self.emit("feed_scroll", "Feed Verified", "Home feed session confirmed active!")
 
-    async def try_solve_phone_checkpoint_smspool(self, page: Page, api_key: str, country: str = "US") -> bool:
+    async def try_solve_phone_checkpoint_smspool(self, page: Page, api_key: str, country: str = "CA") -> bool:
         """Autonomously bypass Instagram phone verification prompt using SMSPool API."""
         resolved_key = (api_key or os.getenv("SMSPOOL_API_KEY", "")).strip()
         if not resolved_key:
@@ -1025,7 +1025,7 @@ class AutomationSession:
                         phone_solved = await self.try_solve_phone_checkpoint_smspool(
                             page,
                             api_key=account.smspool_api_key or os.getenv("SMSPOOL_API_KEY", ""),
-                            country=account.smspool_country or "US",
+                            country=account.smspool_country or os.getenv("DEFAULT_SMSPOOL_COUNTRY", "CA"),
                         )
                         if not phone_solved:
                             await self.wait_for_human_checkpoint(page)
@@ -1202,7 +1202,7 @@ class AutomationSession:
                     await self.try_solve_phone_checkpoint_smspool(
                         page,
                         api_key=account.smspool_api_key or os.getenv("SMSPOOL_API_KEY", ""),
-                        country=account.smspool_country or "US",
+                        country=account.smspool_country or os.getenv("DEFAULT_SMSPOOL_COUNTRY", "CA"),
                     )
 
                 # 5. Handle Post-Login Popups ("Save info", "Not now", etc.)

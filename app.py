@@ -194,7 +194,7 @@ def api_register():
         birthday=birthday or DEFAULT_BIRTHDAY,
         proxy=proxy,
         smspool_api_key=data.get("smspool_api_key") or os.getenv("SMSPOOL_API_KEY", ""),
-        smspool_country=data.get("smspool_country", "US"),
+        smspool_country=data.get("smspool_country") or os.getenv("DEFAULT_SMSPOOL_COUNTRY", "CA"),
     )
 
     def background_runner():
@@ -408,7 +408,7 @@ def api_login():
         imap_port=imap_port,
         proxy=proxy,
         smspool_api_key=data.get("smspool_api_key") or os.getenv("SMSPOOL_API_KEY", ""),
-        smspool_country=data.get("smspool_country", "US"),
+        smspool_country=data.get("smspool_country") or os.getenv("DEFAULT_SMSPOOL_COUNTRY", "CA"),
     )
 
     def background_runner():
@@ -620,7 +620,7 @@ def api_smspool_purchase():
     """Order a temporary SMS verification phone number for Instagram."""
     payload = request.get_json(force=True, silent=True) or {}
     key = payload.get("key") or os.getenv("SMSPOOL_API_KEY", "")
-    country = payload.get("country", "US")
+    country = payload.get("country") or os.getenv("DEFAULT_SMSPOOL_COUNTRY", "CA")
     service = str(payload.get("service", "457"))  # 457 = Instagram / Threads
     pool = payload.get("pool")
     max_price = payload.get("max_price")

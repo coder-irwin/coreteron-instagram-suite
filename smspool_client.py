@@ -24,8 +24,8 @@ import urllib.request
 logger = logging.getLogger("smspool_client")
 
 API_BASE_URL = "https://api.smspool.net"
-DEFAULT_COUNTRY = "US"
-DEFAULT_SERVICE = "instagram"
+DEFAULT_COUNTRY = "CA"
+DEFAULT_SERVICE = "457"
 OTP_REGEX = re.compile(r"(?<!\d)(\d{6})(?!\d)")
 
 

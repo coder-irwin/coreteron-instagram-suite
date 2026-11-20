@@ -75,8 +75,8 @@ function initRegistrationForm() {
         const globalSMSKey = document.getElementById('smspool-api-key')?.value?.trim() || '';
         const activeSMSKey = regSMSKey || globalSMSKey;
 
-        const regSMSCountry = document.getElementById('reg-smspool-country')?.value || 'US';
-        const globalSMSCountry = document.getElementById('smspool-country')?.value || 'US';
+        const regSMSCountry = document.getElementById('reg-smspool-country')?.value || 'CA';
+        const globalSMSCountry = document.getElementById('smspool-country')?.value || 'CA';
         const activeSMSCountry = regSMSCountry || globalSMSCountry;
 
         const payload = {
@@ -196,7 +196,7 @@ function initLoginForm() {
             proxy: document.getElementById('login-proxy') ? document.getElementById('login-proxy').value.trim() : '',
             headless: !document.getElementById('login-visible-browser').checked,
             smspool_api_key: document.getElementById('smspool-api-key')?.value?.trim() || localStorage.getItem('smspool_api_key') || '',
-            smspool_country: document.getElementById('smspool-country')?.value || 'US',
+            smspool_country: document.getElementById('smspool-country')?.value || 'CA',
         };
 
         submitBtn.disabled = true;
@@ -603,7 +603,7 @@ async function checkSMSPoolBalance() {
 
 async function orderSMSPoolNumber() {
     const key = document.getElementById('smspool-api-key')?.value?.trim();
-    const country = document.getElementById('smspool-country')?.value || 'US';
+    const country = document.getElementById('smspool-country')?.value || 'CA';
 
     if (!key) {
         showResult(smspoolResult, false, 'Please enter your SMSPool API Key first.');
