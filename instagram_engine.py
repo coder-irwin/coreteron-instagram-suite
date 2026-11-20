@@ -61,6 +61,8 @@ class AccountData:
     birthday: str = DEFAULT_BIRTHDAY
     phone_number: str = ""
     proxy: str = ""
+    smspool_api_key: str = ""
+    smspool_country: str = "US"
 
     def validate(self) -> None:
         if not self.email or "@" not in self.email:
@@ -363,8 +365,72 @@ class AutomationSession:
             await page.wait_for_timeout(2_000)
         self.emit("feed_scroll", "Feed Verified", "Home feed session confirmed active!")
 
-    async def wait_for_human_checkpoint(self, page: Page, timeout_seconds: int = HUMAN_CAPTCHA_TIMEOUT_SECONDS) -> bool:
+    async def try_solve_phone_checkpoint_smspool(self, page: Page, api_key: str, country: str = "US") -> bool:
+        """Autonomously bypass Instagram phone verification prompt using SMSPool API."""
+        if not api_key:
+            return False
+
+        try:
+            phone_input = page.locator("input[name*='phone'], input[type='tel'], input[placeholder*='phone' i], input[aria-label*='phone' i]").first
+            if not await phone_input.is_visible(timeout=2000):
+                body_text = (await page.locator("body").inner_text(timeout=1000)).lower()
+                if "phone number" not in body_text and "add phone" not in body_text:
+                    return False
+                if not await phone_input.is_visible(timeout=2000):
+                    return False
+
+            self.emit("smspool_trigger", "Phone Verification Detected", "Instagram requested phone verification. Ordering temporary number from SMSPool...")
+            from smspool_client import SMSPoolClient
+            client = SMSPoolClient(api_key=api_key)
+            order = client.purchase_sms(country=country, service="457")
+            if not order.get("success"):
+                self.emit("smspool_err", "SMSPool Purchase Failed", order.get("message", "Could not purchase number"), level="warning")
+                return False
+
+            order_id = order["order_id"]
+            phone_num = order["phonenumber"]
+            full_num = order.get("full_number", phone_num)
+            self.emit("smspool_acquired", "Number Acquired", f"SMSPool Number: {full_num} (Order: {order_id}). Entering into Instagram...")
+
+            await phone_input.fill(phone_num)
+            await page.wait_for_timeout(500)
+
+            send_btn = page.locator("button:has-text('Send confirmation'), button:has-text('Send Code'), button:has-text('Next'), button[type='submit']").first
+            if await send_btn.is_visible(timeout=3000):
+                await send_btn.click()
+                self.emit("smspool_wait", "Awaiting SMS Code", "Phone submitted. Polling SMSPool for 6-digit confirmation code...")
+                await page.wait_for_timeout(3000)
+
+                def _cb(status_txt, data):
+                    self.emit("smspool_status", "SMSPool Status", f"Polling incoming SMS: {status_txt}...")
+
+                otp_code = client.wait_for_sms_otp(order_id, timeout_seconds=180, poll_interval=3.5, callback=_cb)
+                if otp_code:
+                    self.emit("smspool_code", "SMS OTP Received", f"Received SMS code: {otp_code}. Entering into verification screen...")
+                    code_inp = page.locator("input[name*='code'], input[aria-label*='Confirmation'], input[placeholder*='code' i], input[type='text']").first
+                    if await code_inp.is_visible(timeout=5000):
+                        await code_inp.fill(otp_code)
+                        await page.wait_for_timeout(500)
+                        submit_btn = page.locator("button:has-text('Confirm'), button:has-text('Submit'), button[type='submit']").first
+                        if await submit_btn.is_visible(timeout=3000):
+                            await submit_btn.click()
+                            await page.wait_for_timeout(3000)
+                            self.emit("smspool_success", "Phone Verified", "Phone checkpoint solved successfully via SMSPool!")
+                            return True
+                else:
+                    self.emit("smspool_refund", "SMS Timeout", "SMS code did not arrive. Cancelling and refunding order...", level="warning")
+                    client.cancel_sms(order_id)
+        except Exception as e:
+            logger.warning("Error in SMSPool checkpoint solver: %s", e)
+        return False
+
+    async def wait_for_human_checkpoint(self, page: Page, timeout_seconds: int = HUMAN_CAPTCHA_TIMEOUT_SECONDS, smspool_key: Optional[str] = None) -> bool:
         """Pause and alert the operator when Instagram presents a visual check or phone verification."""
+        active_key = smspool_key or os.getenv("SMSPOOL_API_KEY", "")
+        if active_key:
+            if await self.try_solve_phone_checkpoint_smspool(page, active_key):
+                return True
+
         self.emit(
             "human_needed",
             "Action Required: Human Verification",

@@ -468,3 +468,235 @@ function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+// ==========================================
+// SMSPool Integration Handlers
+// ==========================================
+let activeSMSOrderId = null;
+let smsPollInterval = null;
+let smsTimerInterval = null;
+let smsSecondsRemaining = 600;
+
+const btnCheckSMSBalance = document.getElementById('btn-check-smspool-balance');
+const btnOrderSMS = document.getElementById('btn-order-sms');
+const btnCancelSMS = document.getElementById('btn-cancel-sms');
+const smspoolResult = document.getElementById('smspool-result');
+const smspoolBalanceText = document.getElementById('smspool-balance-text');
+
+if (btnCheckSMSBalance) {
+    btnCheckSMSBalance.addEventListener('click', checkSMSPoolBalance);
+}
+
+if (btnOrderSMS) {
+    btnOrderSMS.addEventListener('click', orderSMSPoolNumber);
+}
+
+if (btnCancelSMS) {
+    btnCancelSMS.addEventListener('click', cancelActiveSMSOrder);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const key = document.getElementById('smspool-api-key')?.value?.trim();
+    if (key) {
+        checkSMSPoolBalance();
+    }
+});
+
+async function checkSMSPoolBalance() {
+    const key = document.getElementById('smspool-api-key')?.value?.trim();
+    if (!key) {
+        showResult(smspoolResult, false, 'Please enter your SMSPool API Key.');
+        return;
+    }
+
+    if (btnCheckSMSBalance) btnCheckSMSBalance.disabled = true;
+    if (smspoolBalanceText) smspoolBalanceText.innerText = 'Checking...';
+
+    try {
+        const resp = await fetch('/api/smspool/balance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key })
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+            const balStr = `$${Number(data.balance).toFixed(2)}`;
+            if (smspoolBalanceText) smspoolBalanceText.innerText = balStr;
+            showResult(smspoolResult, true, `Connected to SMSPool! Account Balance: ${balStr} USD`);
+        } else {
+            if (smspoolBalanceText) smspoolBalanceText.innerText = 'Error';
+            showResult(smspoolResult, false, `Balance check failed: ${data.message || 'Invalid API Key'}`);
+        }
+    } catch (err) {
+        if (smspoolBalanceText) smspoolBalanceText.innerText = 'Error';
+        showResult(smspoolResult, false, `Network error checking balance: ${err.message}`);
+    } finally {
+        if (btnCheckSMSBalance) btnCheckSMSBalance.disabled = false;
+    }
+}
+
+async function orderSMSPoolNumber() {
+    const key = document.getElementById('smspool-api-key')?.value?.trim();
+    const country = document.getElementById('smspool-country')?.value || 'US';
+
+    if (!key) {
+        showResult(smspoolResult, false, 'Please enter your SMSPool API Key first.');
+        return;
+    }
+
+    if (btnOrderSMS) btnOrderSMS.disabled = true;
+    showResult(smspoolResult, true, 'Ordering temporary number for Instagram from SMSPool...');
+
+    try {
+        const resp = await fetch('/api/smspool/purchase', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key, country, service: '457' })
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+            activeSMSOrderId = data.order_id;
+            smsSecondsRemaining = Number(data.expires_in) || 600;
+
+            const activeBox = document.getElementById('smspool-active-box');
+            const placeholderBox = document.getElementById('smspool-placeholder-box');
+            if (activeBox) activeBox.style.display = 'block';
+            if (placeholderBox) placeholderBox.style.display = 'none';
+
+            const phoneDisplay = data.full_number || data.phonenumber;
+            document.getElementById('active-order-id').innerText = data.order_id;
+            document.getElementById('active-order-phone').innerText = phoneDisplay;
+            document.getElementById('active-order-status').innerText = 'Waiting for SMS';
+            document.getElementById('active-order-code').innerText = 'Waiting for SMS...';
+            document.getElementById('active-order-code').style.color = 'var(--primary)';
+            document.getElementById('active-order-raw').innerText = 'Assigned number: ' + phoneDisplay;
+
+            showResult(smspoolResult, true, `Number ${phoneDisplay} acquired! Waiting for verification code...`);
+
+            startSMSCountdown();
+            startSMSPolling(key, data.order_id);
+            checkSMSPoolBalance();
+        } else {
+            showResult(smspoolResult, false, `Failed to order number: ${data.message || 'No numbers available'}`);
+        }
+    } catch (err) {
+        showResult(smspoolResult, false, `Error purchasing SMS: ${err.message}`);
+    } finally {
+        if (btnOrderSMS) btnOrderSMS.disabled = false;
+    }
+}
+
+function startSMSCountdown() {
+    if (smsTimerInterval) clearInterval(smsTimerInterval);
+    const timerElem = document.getElementById('active-order-timer');
+
+    smsTimerInterval = setInterval(() => {
+        smsSecondsRemaining--;
+        if (timerElem) timerElem.innerText = `${smsSecondsRemaining}s`;
+
+        if (smsSecondsRemaining <= 0) {
+            clearInterval(smsTimerInterval);
+            if (smsPollInterval) clearInterval(smsPollInterval);
+            const statusElem = document.getElementById('active-order-status');
+            const codeElem = document.getElementById('active-order-code');
+            if (statusElem) statusElem.innerText = 'Expired / Refunded';
+            if (codeElem) {
+                codeElem.innerText = 'Expired';
+                codeElem.style.color = '#ef4444';
+            }
+            checkSMSPoolBalance();
+        }
+    }, 1000);
+}
+
+function startSMSPolling(key, orderId) {
+    if (smsPollInterval) clearInterval(smsPollInterval);
+
+    smsPollInterval = setInterval(async () => {
+        try {
+            const resp = await fetch('/api/smspool/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key, order_id: orderId })
+            });
+            const data = await resp.json();
+
+            if (data.status === 3 && data.sms) {
+                clearInterval(smsPollInterval);
+                clearInterval(smsTimerInterval);
+
+                const statusElem = document.getElementById('active-order-status');
+                const codeElem = document.getElementById('active-order-code');
+                const rawElem = document.getElementById('active-order-raw');
+
+                if (statusElem) {
+                    statusElem.innerText = 'Completed';
+                    statusElem.style.background = '#ecfdf5';
+                    statusElem.style.color = '#059669';
+                }
+
+                if (codeElem) {
+                    codeElem.innerText = data.sms;
+                    codeElem.style.color = '#059669';
+                }
+
+                if (rawElem) {
+                    rawElem.innerText = data.full_sms || 'Code received successfully!';
+                }
+
+                showResult(smspoolResult, true, `Verification code received: ${data.sms}`);
+                addLog('smspool', 'SMS Code Received', `Code ${data.sms} for phone verification`, 'success');
+            } else if (data.status === 2 || data.status === 5 || data.status === 6) {
+                clearInterval(smsPollInterval);
+                clearInterval(smsTimerInterval);
+                const statusElem = document.getElementById('active-order-status');
+                const codeElem = document.getElementById('active-order-code');
+                if (statusElem) statusElem.innerText = data.status_text || 'Cancelled';
+                if (codeElem) codeElem.innerText = 'Refunded';
+                checkSMSPoolBalance();
+            }
+        } catch (e) {
+            console.error('Polling error:', e);
+        }
+    }, 3500);
+}
+
+async function cancelActiveSMSOrder() {
+    if (!activeSMSOrderId) return;
+    const key = document.getElementById('smspool-api-key')?.value?.trim();
+
+    if (btnCancelSMS) btnCancelSMS.disabled = true;
+
+    try {
+        const resp = await fetch('/api/smspool/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key, order_id: activeSMSOrderId })
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+            if (smsPollInterval) clearInterval(smsPollInterval);
+            if (smsTimerInterval) clearInterval(smsTimerInterval);
+
+            const statusElem = document.getElementById('active-order-status');
+            const codeElem = document.getElementById('active-order-code');
+            if (statusElem) statusElem.innerText = 'Cancelled & Refunded';
+            if (codeElem) {
+                codeElem.innerText = 'Order Cancelled';
+                codeElem.style.color = '#ef4444';
+            }
+
+            showResult(smspoolResult, true, 'Order cancelled successfully. Balance refunded!');
+            checkSMSPoolBalance();
+        } else {
+            showResult(smspoolResult, false, `Cancel failed: ${data.message}`);
+        }
+    } catch (err) {
+        showResult(smspoolResult, false, `Error cancelling order: ${err.message}`);
+    } finally {
+        if (btnCancelSMS) btnCancelSMS.disabled = false;
+    }
+}

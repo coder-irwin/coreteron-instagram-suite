@@ -34,6 +34,7 @@ from instagram_engine import (
     generate_random_credentials,
 )
 from mxroute_client import DEFAULT_SERVER as MXROUTE_DEFAULT_SERVER, MXRouteIMAPReader
+from smspool_client import SMSPoolClient, DEFAULT_COUNTRY as SMSPOOL_DEFAULT_COUNTRY, DEFAULT_SERVICE as SMSPOOL_DEFAULT_SERVICE
 
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
@@ -97,6 +98,7 @@ def index():
         default_imap_server=os.getenv("DEFAULT_IMAP_SERVER", MXROUTE_DEFAULT_SERVER),
         default_imap_port=os.getenv("DEFAULT_IMAP_PORT", "993"),
         default_username=os.getenv("DEFAULT_USERNAME") or f"meena_akaash_qa{random.randint(100, 9999)}",
+        default_smspool_key=os.getenv("SMSPOOL_API_KEY", ""),
     )
 
 
@@ -578,6 +580,77 @@ def download_template():
     if TEMPLATE_EXCEL.exists():
         return send_file(str(TEMPLATE_EXCEL), as_attachment=True, download_name="coreteron_accounts_template.xlsx")
     return jsonify({"success": False, "message": "Template file not found."}), 404
+
+
+@app.route("/api/smspool/balance", methods=["GET", "POST"])
+def api_smspool_balance():
+    """Check SMSPool account balance."""
+    payload = request.get_json(force=True, silent=True) or {}
+    key = payload.get("key") or request.args.get("key") or os.getenv("SMSPOOL_API_KEY", "")
+    client = SMSPoolClient(api_key=key)
+    res = client.check_balance()
+    return jsonify(res)
+
+
+@app.route("/api/smspool/countries", methods=["GET"])
+def api_smspool_countries():
+    """Retrieve list of supported countries for SMSPool."""
+    client = SMSPoolClient()
+    countries = client.retrieve_countries()
+    if not countries:
+        countries = [
+            {"ID": 1, "name": "United States", "short_name": "US", "cc": "1"},
+            {"ID": 2, "name": "United Kingdom", "short_name": "GB", "cc": "44"},
+            {"ID": 3, "name": "Canada", "short_name": "CA", "cc": "1"},
+            {"ID": 4, "name": "Australia", "short_name": "AU", "cc": "61"},
+            {"ID": 5, "name": "Germany", "short_name": "DE", "cc": "49"},
+            {"ID": 6, "name": "France", "short_name": "FR", "cc": "33"},
+            {"ID": 7, "name": "Netherlands", "short_name": "NL", "cc": "31"},
+        ]
+    return jsonify({"success": True, "countries": countries})
+
+
+@app.route("/api/smspool/purchase", methods=["POST"])
+def api_smspool_purchase():
+    """Order a temporary SMS verification phone number for Instagram."""
+    payload = request.get_json(force=True, silent=True) or {}
+    key = payload.get("key") or os.getenv("SMSPOOL_API_KEY", "")
+    country = payload.get("country", "US")
+    service = str(payload.get("service", "457"))  # 457 = Instagram / Threads
+    pool = payload.get("pool")
+    max_price = payload.get("max_price")
+
+    client = SMSPoolClient(api_key=key)
+    res = client.purchase_sms(country=country, service=service, pool=pool, max_price=max_price)
+    return jsonify(res), (200 if res.get("success") else 400)
+
+
+@app.route("/api/smspool/check", methods=["POST"])
+def api_smspool_check():
+    """Check incoming SMS code for an active order."""
+    payload = request.get_json(force=True, silent=True) or {}
+    key = payload.get("key") or os.getenv("SMSPOOL_API_KEY", "")
+    order_id = payload.get("order_id") or payload.get("orderid")
+    if not order_id:
+        return jsonify({"success": False, "message": "order_id is required."}), 400
+
+    client = SMSPoolClient(api_key=key)
+    res = client.check_sms(str(order_id))
+    return jsonify(res)
+
+
+@app.route("/api/smspool/cancel", methods=["POST"])
+def api_smspool_cancel():
+    """Cancel an active SMS order to trigger a refund."""
+    payload = request.get_json(force=True, silent=True) or {}
+    key = payload.get("key") or os.getenv("SMSPOOL_API_KEY", "")
+    order_id = payload.get("order_id") or payload.get("orderid")
+    if not order_id:
+        return jsonify({"success": False, "message": "order_id is required."}), 400
+
+    client = SMSPoolClient(api_key=key)
+    res = client.cancel_sms(str(order_id))
+    return jsonify(res)
 
 
 def start_server(host: str = "127.0.0.1", port: int = 5050, debug: bool = False):
