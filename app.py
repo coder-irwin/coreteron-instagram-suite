@@ -99,6 +99,7 @@ def index():
         default_imap_port=os.getenv("DEFAULT_IMAP_PORT", "993"),
         default_username=os.getenv("DEFAULT_USERNAME") or f"meena_akaash_qa{random.randint(100, 9999)}",
         default_smspool_key=os.getenv("SMSPOOL_API_KEY", ""),
+        default_smspool_country=os.getenv("DEFAULT_SMSPOOL_COUNTRY", "CA"),
     )
 
 
