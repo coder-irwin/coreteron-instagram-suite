@@ -151,6 +151,32 @@
                                 </label>
                             </div>
 
+                            <!-- SMSPool Automated Phone Verification -->
+                            <details class="advanced-details" open style="margin-top: 0.75rem;">
+                                <summary>SMSPool Automated Phone Verification</summary>
+                                <div style="margin-top: 0.75rem;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="reg-smspool-key">SMSPool API Key</label>
+                                            <input type="password" id="reg-smspool-key" placeholder="Paste SMSPool API Key" value="{{ default_smspool_key }}">
+                                        </div>
+                                        <div class="form-group" style="max-width: 140px;">
+                                            <label for="reg-smspool-country">Country</label>
+                                            <select id="reg-smspool-country">
+                                                <option value="US" selected>US (+1)</option>
+                                                <option value="GB">GB (+44)</option>
+                                                <option value="CA">CA (+1)</option>
+                                                <option value="AU">AU (+61)</option>
+                                                <option value="DE">DE (+49)</option>
+                                                <option value="FR">FR (+33)</option>
+                                                <option value="NL">NL (+31)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <span class="field-hint">When Instagram requests phone confirmation after email OTP, the system automatically buys an SMSPool number and enters the SMS code.</span>
+                                </div>
+                            </details>
+
                             <button type="submit" class="btn btn-primary btn-block" id="btn-start-register">
                                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                                 <span>Start Automated Registration</span>
@@ -186,16 +212,21 @@
                             <div class="step-connector"></div>
                             <div class="step-node" id="step-otp">
                                 <div class="step-circle">3</div>
-                                <span class="step-name">IMAP OTP</span>
+                                <span class="step-name">Email OTP</span>
+                            </div>
+                            <div class="step-connector"></div>
+                            <div class="step-node" id="step-phone">
+                                <div class="step-circle">4</div>
+                                <span class="step-name">Phone SMS</span>
                             </div>
                             <div class="step-connector"></div>
                             <div class="step-node" id="step-verify">
-                                <div class="step-circle">4</div>
-                                <span class="step-name">Verify</span>
+                                <div class="step-circle">5</div>
+                                <span class="step-name">Feed Active</span>
                             </div>
                             <div class="step-connector"></div>
                             <div class="step-node" id="step-done">
-                                <div class="step-circle">5</div>
+                                <div class="step-circle">6</div>
                                 <span class="step-name">Done</span>
                             </div>
                         </div>

@@ -192,6 +192,8 @@ def api_register():
         imap_port=imap_port,
         birthday=birthday or DEFAULT_BIRTHDAY,
         proxy=proxy,
+        smspool_api_key=data.get("smspool_api_key") or os.getenv("SMSPOOL_API_KEY", ""),
+        smspool_country=data.get("smspool_country", "US"),
     )
 
     def background_runner():
@@ -404,6 +406,8 @@ def api_login():
         imap_server=imap_server,
         imap_port=imap_port,
         proxy=proxy,
+        smspool_api_key=data.get("smspool_api_key") or os.getenv("SMSPOOL_API_KEY", ""),
+        smspool_country=data.get("smspool_country", "US"),
     )
 
     def background_runner():
@@ -651,6 +655,41 @@ def api_smspool_cancel():
     client = SMSPoolClient(api_key=key)
     res = client.cancel_sms(str(order_id))
     return jsonify(res)
+
+
+@app.route("/api/smspool/save-key", methods=["POST"])
+def api_smspool_save_key():
+    """Persist SMSPool API key to current runtime and .env configuration file."""
+    payload = request.get_json(force=True, silent=True) or {}
+    key = str(payload.get("key", "")).strip()
+    if not key:
+        return jsonify({"success": False, "message": "API key cannot be empty."}), 400
+
+    os.environ["SMSPOOL_API_KEY"] = key
+
+    # Persist to .env
+    env_path = BASE_DIR / ".env"
+    try:
+        lines = []
+        if env_path.exists():
+            with open(env_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+        found = False
+        new_lines = []
+        for line in lines:
+            if line.startswith("SMSPOOL_API_KEY="):
+                new_lines.append(f"SMSPOOL_API_KEY={key}\n")
+                found = True
+            else:
+                new_lines.append(line)
+        if not found:
+            new_lines.append(f"SMSPOOL_API_KEY={key}\n")
+        with open(env_path, "w", encoding="utf-8") as f:
+            f.writelines(new_lines)
+    except Exception as e:
+        logger.warning("Could not persist SMSPOOL_API_KEY to .env: %s", e)
+
+    return jsonify({"success": True, "message": "SMSPool API key saved and activated."})
 
 
 def start_server(host: str = "127.0.0.1", port: int = 5050, debug: bool = False):

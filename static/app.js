@@ -71,6 +71,14 @@ function initRegistrationForm() {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        const regSMSKey = document.getElementById('reg-smspool-key')?.value?.trim() || '';
+        const globalSMSKey = document.getElementById('smspool-api-key')?.value?.trim() || '';
+        const activeSMSKey = regSMSKey || globalSMSKey;
+
+        const regSMSCountry = document.getElementById('reg-smspool-country')?.value || 'US';
+        const globalSMSCountry = document.getElementById('smspool-country')?.value || 'US';
+        const activeSMSCountry = regSMSCountry || globalSMSCountry;
+
         const payload = {
             email: document.getElementById('reg-email').value.trim(),
             email_password: document.getElementById('reg-email-password').value.trim(),
@@ -82,6 +90,8 @@ function initRegistrationForm() {
             imap_server: document.getElementById('reg-imap-server').value.trim() || 'witcher.mxrouting.net',
             imap_port: parseInt(document.getElementById('reg-imap-port').value, 10) || 993,
             headless: !document.getElementById('reg-visible-browser').checked,
+            smspool_api_key: activeSMSKey,
+            smspool_country: activeSMSCountry,
         };
 
         resetStepper();
@@ -185,6 +195,8 @@ function initLoginForm() {
             email_password: document.getElementById('login-email-pwd').value.trim(),
             proxy: document.getElementById('login-proxy') ? document.getElementById('login-proxy').value.trim() : '',
             headless: !document.getElementById('login-visible-browser').checked,
+            smspool_api_key: document.getElementById('smspool-api-key')?.value?.trim() || localStorage.getItem('smspool_api_key') || '',
+            smspool_country: document.getElementById('smspool-country')?.value || 'US',
         };
 
         submitBtn.disabled = true;
@@ -341,7 +353,14 @@ function updateStepper(step) {
         form_submit: document.getElementById('step-fill'),
         imap_fetch: document.getElementById('step-otp'),
         otp_received: document.getElementById('step-otp'),
-        otp_submitted: document.getElementById('step-verify'),
+        otp_submitted: document.getElementById('step-otp'),
+        phone_detect: document.getElementById('step-phone'),
+        smspool_trigger: document.getElementById('step-phone'),
+        smspool_acquired: document.getElementById('step-phone'),
+        smspool_wait: document.getElementById('step-phone'),
+        smspool_code: document.getElementById('step-phone'),
+        smspool_submitted: document.getElementById('step-phone'),
+        smspool_success: document.getElementById('step-phone'),
         feed_scroll: document.getElementById('step-verify'),
         completed: document.getElementById('step-done'),
     };
@@ -356,22 +375,30 @@ function updateStepper(step) {
     }
 
     if (step === 'form_submit') {
-        nodes.init.classList.add('completed');
+        nodes.init?.classList.add('completed');
     } else if (step === 'otp_received') {
-        nodes.form_fill.classList.add('completed');
+        nodes.form_fill?.classList.add('completed');
     } else if (step === 'otp_submitted') {
-        nodes.imap_fetch.classList.add('completed');
+        nodes.imap_fetch?.classList.add('completed');
+    } else if (step === 'smspool_success') {
+        nodes.phone_detect?.classList.add('completed');
+    } else if (step === 'feed_scroll') {
+        nodes.imap_fetch?.classList.add('completed');
+        nodes.phone_detect?.classList.add('completed');
     } else if (step === 'completed') {
-        Object.values(nodes).forEach(n => n.classList.add('completed'));
+        ['step-init', 'step-fill', 'step-otp', 'step-phone', 'step-verify', 'step-done'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('completed');
+        });
     }
 }
 
 function resetStepper() {
-    ['step-init', 'step-fill', 'step-otp', 'step-verify', 'step-done'].forEach(id => {
+    ['step-init', 'step-fill', 'step-otp', 'step-phone', 'step-verify', 'step-done'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.className = 'step-node';
     });
-    document.getElementById('step-init').classList.add('active');
+    document.getElementById('step-init')?.classList.add('active');
 }
 
 function onTaskFinished(event) {
@@ -496,14 +523,44 @@ if (btnCancelSMS) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    const key = document.getElementById('smspool-api-key')?.value?.trim();
+    const regKeyEl = document.getElementById('reg-smspool-key');
+    const globalKeyEl = document.getElementById('smspool-api-key');
+    const regCountryEl = document.getElementById('reg-smspool-country');
+    const globalCountryEl = document.getElementById('smspool-country');
+
+    // Restore from localStorage if input is empty
+    const savedKey = localStorage.getItem('smspool_api_key');
+    if (savedKey) {
+        if (regKeyEl && !regKeyEl.value) regKeyEl.value = savedKey;
+        if (globalKeyEl && !globalKeyEl.value) globalKeyEl.value = savedKey;
+    }
+
+    // Bidirectional sync for API key
+    if (regKeyEl && globalKeyEl) {
+        regKeyEl.addEventListener('input', (e) => {
+            globalKeyEl.value = e.target.value;
+            localStorage.setItem('smspool_api_key', e.target.value.trim());
+        });
+        globalKeyEl.addEventListener('input', (e) => {
+            regKeyEl.value = e.target.value;
+            localStorage.setItem('smspool_api_key', e.target.value.trim());
+        });
+    }
+
+    // Sync Country dropdowns
+    if (regCountryEl && globalCountryEl) {
+        regCountryEl.addEventListener('change', (e) => { globalCountryEl.value = e.target.value; });
+        globalCountryEl.addEventListener('change', (e) => { regCountryEl.value = e.target.value; });
+    }
+
+    const key = globalKeyEl?.value?.trim() || regKeyEl?.value?.trim();
     if (key) {
         checkSMSPoolBalance();
     }
 });
 
 async function checkSMSPoolBalance() {
-    const key = document.getElementById('smspool-api-key')?.value?.trim();
+    const key = (document.getElementById('smspool-api-key')?.value?.trim() || document.getElementById('reg-smspool-key')?.value?.trim());
     if (!key) {
         showResult(smspoolResult, false, 'Please enter your SMSPool API Key.');
         return;
@@ -524,6 +581,14 @@ async function checkSMSPoolBalance() {
             const balStr = `$${Number(data.balance).toFixed(2)}`;
             if (smspoolBalanceText) smspoolBalanceText.innerText = balStr;
             showResult(smspoolResult, true, `Connected to SMSPool! Account Balance: ${balStr} USD`);
+
+            // Persist valid key to localStorage and server .env
+            localStorage.setItem('smspool_api_key', key);
+            fetch('/api/smspool/save-key', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key })
+            }).catch(() => {});
         } else {
             if (smspoolBalanceText) smspoolBalanceText.innerText = 'Error';
             showResult(smspoolResult, false, `Balance check failed: ${data.message || 'Invalid API Key'}`);
